@@ -1,0 +1,530 @@
+[
+ {
+   "ADM2_EN": "Ilocos Norte",
+   "ADM2_PCODE": "PH01028",
+   "ADM1_PCODE": "PH01",
+   "AREA_SQKM": 3274.885081
+ },
+ {
+   "ADM2_EN": "Ilocos Sur",
+   "ADM2_PCODE": "PH01029",
+   "ADM1_PCODE": "PH01",
+   "AREA_SQKM": 2465.2760345
+ },
+ {
+   "ADM2_EN": "La Union",
+   "ADM2_PCODE": "PH01033",
+   "ADM1_PCODE": "PH01",
+   "AREA_SQKM": 1412.57088951
+ },
+ {
+   "ADM2_EN": "Pangasinan",
+   "ADM2_PCODE": "PH01055",
+   "ADM1_PCODE": "PH01",
+   "AREA_SQKM": 5154.61882317
+ },
+ {
+   "ADM2_EN": "Batanes",
+   "ADM2_PCODE": "PH02009",
+   "ADM1_PCODE": "PH02",
+   "AREA_SQKM": 201.374821148
+ },
+ {
+   "ADM2_EN": "Cagayan",
+   "ADM2_PCODE": "PH02015",
+   "ADM1_PCODE": "PH02",
+   "AREA_SQKM": 8797.49585347
+ },
+ {
+   "ADM2_EN": "Isabela",
+   "ADM2_PCODE": "PH02031",
+   "ADM1_PCODE": "PH02",
+   "AREA_SQKM": 10494.9275834
+ },
+ {
+   "ADM2_EN": "Nueva Vizcaya",
+   "ADM2_PCODE": "PH02050",
+   "ADM1_PCODE": "PH02",
+   "AREA_SQKM": 4125.92151439
+ },
+ {
+   "ADM2_EN": "Quirino",
+   "ADM2_PCODE": "PH02057",
+   "ADM1_PCODE": "PH02",
+   "AREA_SQKM": 2768.00978286
+ },
+ {
+   "ADM2_EN": "Bataan",
+   "ADM2_PCODE": "PH03008",
+   "ADM1_PCODE": "PH03",
+   "AREA_SQKM": 1244.9536498
+ },
+ {
+   "ADM2_EN": "Bulacan",
+   "ADM2_PCODE": "PH03014",
+   "ADM1_PCODE": "PH03",
+   "AREA_SQKM": 2709.98275164
+ },
+ {
+   "ADM2_EN": "Nueva Ecija",
+   "ADM2_PCODE": "PH03049",
+   "ADM1_PCODE": "PH03",
+   "AREA_SQKM": 5504.67257336
+ },
+ {
+   "ADM2_EN": "Pampanga",
+   "ADM2_PCODE": "PH03054",
+   "ADM1_PCODE": "PH03",
+   "AREA_SQKM": 2114.23826026
+ },
+ {
+   "ADM2_EN": "Tarlac",
+   "ADM2_PCODE": "PH03069",
+   "ADM1_PCODE": "PH03",
+   "AREA_SQKM": 2971.64580096
+ },
+ {
+   "ADM2_EN": "Zambales",
+   "ADM2_PCODE": "PH03071",
+   "ADM1_PCODE": "PH03",
+   "AREA_SQKM": 3728.22291362
+ },
+ {
+   "ADM2_EN": "Aurora",
+   "ADM2_PCODE": "PH03077",
+   "ADM1_PCODE": "PH03",
+   "AREA_SQKM": 3030.4395692
+ },
+ {
+   "ADM2_EN": "Batangas",
+   "ADM2_PCODE": "PH04010",
+   "ADM1_PCODE": "PH04",
+   "AREA_SQKM": 3196.53955758
+ },
+ {
+   "ADM2_EN": "Cavite",
+   "ADM2_PCODE": "PH04021",
+   "ADM1_PCODE": "PH04",
+   "AREA_SQKM": 1245.18022657
+ },
+ {
+   "ADM2_EN": "Laguna",
+   "ADM2_PCODE": "PH04034",
+   "ADM1_PCODE": "PH04",
+   "AREA_SQKM": 1802.26765687
+ },
+ {
+   "ADM2_EN": "Quezon",
+   "ADM2_PCODE": "PH04056",
+   "ADM1_PCODE": "PH04",
+   "AREA_SQKM": 8402.27216313
+ },
+ {
+   "ADM2_EN": "Rizal",
+   "ADM2_PCODE": "PH04058",
+   "ADM1_PCODE": "PH04",
+   "AREA_SQKM": 1200.37095502
+ },
+ {
+   "ADM2_EN": "Albay",
+   "ADM2_PCODE": "PH05005",
+   "ADM1_PCODE": "PH05",
+   "AREA_SQKM": 2469.55987577
+ },
+ {
+   "ADM2_EN": "Camarines Norte",
+   "ADM2_PCODE": "PH05016",
+   "ADM1_PCODE": "PH05",
+   "AREA_SQKM": 2121.37218329
+ },
+ {
+   "ADM2_EN": "Camarines Sur",
+   "ADM2_PCODE": "PH05017",
+   "ADM1_PCODE": "PH05",
+   "AREA_SQKM": 5284.71101595
+ },
+ {
+   "ADM2_EN": "Catanduanes",
+   "ADM2_PCODE": "PH05020",
+   "ADM1_PCODE": "PH05",
+   "AREA_SQKM": 1460.55429066
+ },
+ {
+   "ADM2_EN": "Masbate",
+   "ADM2_PCODE": "PH05041",
+   "ADM1_PCODE": "PH05",
+   "AREA_SQKM": 3989.23704448
+ },
+ {
+   "ADM2_EN": "Sorsogon",
+   "ADM2_PCODE": "PH05062",
+   "ADM1_PCODE": "PH05",
+   "AREA_SQKM": 1986.41106496
+ },
+ {
+   "ADM2_EN": "Aklan",
+   "ADM2_PCODE": "PH06004",
+   "ADM1_PCODE": "PH06",
+   "AREA_SQKM": 1684.87228215
+ },
+ {
+   "ADM2_EN": "Antique",
+   "ADM2_PCODE": "PH06006",
+   "ADM1_PCODE": "PH06",
+   "AREA_SQKM": 2736.49920207
+ },
+ {
+   "ADM2_EN": "Capiz",
+   "ADM2_PCODE": "PH06019",
+   "ADM1_PCODE": "PH06",
+   "AREA_SQKM": 2651.03307639
+ },
+ {
+   "ADM2_EN": "Iloilo",
+   "ADM2_PCODE": "PH06030",
+   "ADM1_PCODE": "PH06",
+   "AREA_SQKM": 4720.20932571
+ },
+ {
+   "ADM2_EN": "Negros Occidental",
+   "ADM2_PCODE": "PH06045",
+   "ADM1_PCODE": "PH06",
+   "AREA_SQKM": 7658.80047244
+ },
+ {
+   "ADM2_EN": "Guimaras",
+   "ADM2_PCODE": "PH06079",
+   "ADM1_PCODE": "PH06",
+   "AREA_SQKM": 596.210641555
+ },
+ {
+   "ADM2_EN": "Bohol",
+   "ADM2_PCODE": "PH07012",
+   "ADM1_PCODE": "PH07",
+   "AREA_SQKM": 3970.08418971
+ },
+ {
+   "ADM2_EN": "Cebu",
+   "ADM2_PCODE": "PH07022",
+   "ADM1_PCODE": "PH07",
+   "AREA_SQKM": 4870.14350473
+ },
+ {
+   "ADM2_EN": "Negros Oriental",
+   "ADM2_PCODE": "PH07046",
+   "ADM1_PCODE": "PH07",
+   "AREA_SQKM": 5133.85242023
+ },
+ {
+   "ADM2_EN": "Siquijor",
+   "ADM2_PCODE": "PH07061",
+   "ADM1_PCODE": "PH07",
+   "AREA_SQKM": 319.577731138
+ },
+ {
+   "ADM2_EN": "Eastern Samar",
+   "ADM2_PCODE": "PH08026",
+   "ADM1_PCODE": "PH08",
+   "AREA_SQKM": 4249.75361035
+ },
+ {
+   "ADM2_EN": "Leyte",
+   "ADM2_PCODE": "PH08037",
+   "ADM1_PCODE": "PH08",
+   "AREA_SQKM": 5575.75610448
+ },
+ {
+   "ADM2_EN": "Northern Samar",
+   "ADM2_PCODE": "PH08048",
+   "ADM1_PCODE": "PH08",
+   "AREA_SQKM": 3440.49021183
+ },
+ {
+   "ADM2_EN": "Samar (Western Samar)",
+   "ADM2_PCODE": "PH08060",
+   "ADM1_PCODE": "PH08",
+   "AREA_SQKM": 5382.40582372
+ },
+ {
+   "ADM2_EN": "Southern Leyte",
+   "ADM2_PCODE": "PH08064",
+   "ADM1_PCODE": "PH08",
+   "AREA_SQKM": 1655.44157663
+ },
+ {
+   "ADM2_EN": "Biliran",
+   "ADM2_PCODE": "PH08078",
+   "ADM1_PCODE": "PH08",
+   "AREA_SQKM": 531.827804361
+ },
+ {
+   "ADM2_EN": "Zamboanga del Norte",
+   "ADM2_PCODE": "PH09072",
+   "ADM1_PCODE": "PH09",
+   "AREA_SQKM": 6284.1211339
+ },
+ {
+   "ADM2_EN": "Zamboanga del Sur",
+   "ADM2_PCODE": "PH09073",
+   "ADM1_PCODE": "PH09",
+   "AREA_SQKM": 5366.23351281
+ },
+ {
+   "ADM2_EN": "Zamboanga Sibugay",
+   "ADM2_PCODE": "PH09083",
+   "ADM1_PCODE": "PH09",
+   "AREA_SQKM": 2725.82923375
+ },
+ {
+   "ADM2_EN": "City of Isabela (not a province)",
+   "ADM2_PCODE": "PH09097",
+   "ADM1_PCODE": "PH09",
+   "AREA_SQKM": 219.869683721
+ },
+ {
+   "ADM2_EN": "Bukidnon",
+   "ADM2_PCODE": "PH10013",
+   "ADM1_PCODE": "PH10",
+   "AREA_SQKM": 9358.46105833
+ },
+ {
+   "ADM2_EN": "Camiguin",
+   "ADM2_PCODE": "PH10018",
+   "ADM1_PCODE": "PH10",
+   "AREA_SQKM": 242.5330884
+ },
+ {
+   "ADM2_EN": "Lanao del Norte",
+   "ADM2_PCODE": "PH10035",
+   "ADM1_PCODE": "PH10",
+   "AREA_SQKM": 2638.74657653
+ },
+ {
+   "ADM2_EN": "Misamis Occidental",
+   "ADM2_PCODE": "PH10042",
+   "ADM1_PCODE": "PH10",
+   "AREA_SQKM": 1871.05270159
+ },
+ {
+   "ADM2_EN": "Misamis Oriental",
+   "ADM2_PCODE": "PH10043",
+   "ADM1_PCODE": "PH10",
+   "AREA_SQKM": 3378.49323506
+ },
+ {
+   "ADM2_EN": "Davao del Norte",
+   "ADM2_PCODE": "PH11023",
+   "ADM1_PCODE": "PH11",
+   "AREA_SQKM": 3245.32887219
+ },
+ {
+   "ADM2_EN": "Davao del Sur",
+   "ADM2_PCODE": "PH11024",
+   "ADM1_PCODE": "PH11",
+   "AREA_SQKM": 4262.53194688
+ },
+ {
+   "ADM2_EN": "Davao Oriental",
+   "ADM2_PCODE": "PH11025",
+   "ADM1_PCODE": "PH11",
+   "AREA_SQKM": 4989.02640214
+ },
+ {
+   "ADM2_EN": "Davao de Oro (Compostela Valley)",
+   "ADM2_PCODE": "PH11082",
+   "ADM1_PCODE": "PH11",
+   "AREA_SQKM": 4351.49261342
+ },
+ {
+   "ADM2_EN": "Davao Occidental",
+   "ADM2_PCODE": "PH11086",
+   "ADM1_PCODE": "PH11",
+   "AREA_SQKM": 1960.49813358
+ },
+ {
+   "ADM2_EN": "Cotabato (North Cotabato)",
+   "ADM2_PCODE": "PH12047",
+   "ADM1_PCODE": "PH12",
+   "AREA_SQKM": 5316.88142298
+ },
+ {
+   "ADM2_EN": "South Cotabato",
+   "ADM2_PCODE": "PH12063",
+   "ADM1_PCODE": "PH12",
+   "AREA_SQKM": 4119.4092846
+ },
+ {
+   "ADM2_EN": "Sultan Kudarat",
+   "ADM2_PCODE": "PH12065",
+   "ADM1_PCODE": "PH12",
+   "AREA_SQKM": 4224.84073613
+ },
+ {
+   "ADM2_EN": "Sarangani",
+   "ADM2_PCODE": "PH12080",
+   "ADM1_PCODE": "PH12",
+   "AREA_SQKM": 3699.92242851
+ },
+ {
+   "ADM2_EN": "Metropolitan Manila First District",
+   "ADM2_PCODE": "PH13039",
+   "ADM1_PCODE": "PH13",
+   "AREA_SQKM": 41.9600900619
+ },
+ {
+   "ADM2_EN": "Metropolitan Manila Second District",
+   "ADM2_PCODE": "PH13074",
+   "ADM1_PCODE": "PH13",
+   "AREA_SQKM": 233.767124713
+ },
+ {
+   "ADM2_EN": "Metropolitan Manila Third District",
+   "ADM2_PCODE": "PH13075",
+   "ADM1_PCODE": "PH13",
+   "AREA_SQKM": 126.090073107
+ },
+ {
+   "ADM2_EN": "Metropolitan Manila Fourth District",
+   "ADM2_PCODE": "PH13076",
+   "ADM1_PCODE": "PH13",
+   "AREA_SQKM": 196.722285152
+ },
+ {
+   "ADM2_EN": "Abra",
+   "ADM2_PCODE": "PH14001",
+   "ADM1_PCODE": "PH14",
+   "AREA_SQKM": 3926.64615802
+ },
+ {
+   "ADM2_EN": "Benguet",
+   "ADM2_PCODE": "PH14011",
+   "ADM1_PCODE": "PH14",
+   "AREA_SQKM": 2832.94222805
+ },
+ {
+   "ADM2_EN": "Ifugao",
+   "ADM2_PCODE": "PH14027",
+   "ADM1_PCODE": "PH14",
+   "AREA_SQKM": 2506.65675469
+ },
+ {
+   "ADM2_EN": "Kalinga",
+   "ADM2_PCODE": "PH14032",
+   "ADM1_PCODE": "PH14",
+   "AREA_SQKM": 2825.08770786
+ },
+ {
+   "ADM2_EN": "Mountain Province",
+   "ADM2_PCODE": "PH14044",
+   "ADM1_PCODE": "PH14",
+   "AREA_SQKM": 2112.49736303
+ },
+ {
+   "ADM2_EN": "Apayao",
+   "ADM2_PCODE": "PH14081",
+   "ADM1_PCODE": "PH14",
+   "AREA_SQKM": 3988.81383995
+ },
+ {
+   "ADM2_EN": "Agusan del Norte",
+   "ADM2_PCODE": "PH16002",
+   "ADM1_PCODE": "PH16",
+   "AREA_SQKM": 2676.07552962
+ },
+ {
+   "ADM2_EN": "Agusan del Sur",
+   "ADM2_PCODE": "PH16003",
+   "ADM1_PCODE": "PH16",
+   "AREA_SQKM": 8452.32657813
+ },
+ {
+   "ADM2_EN": "Surigao del Norte",
+   "ADM2_PCODE": "PH16067",
+   "ADM1_PCODE": "PH16",
+   "AREA_SQKM": 1973.16421968
+ },
+ {
+   "ADM2_EN": "Surigao del Sur",
+   "ADM2_PCODE": "PH16068",
+   "ADM1_PCODE": "PH16",
+   "AREA_SQKM": 4698.24455531
+ },
+ {
+   "ADM2_EN": "Dinagat Islands",
+   "ADM2_PCODE": "PH16085",
+   "ADM1_PCODE": "PH16",
+   "AREA_SQKM": 805.29192768
+ },
+ {
+   "ADM2_EN": "Marinduque",
+   "ADM2_PCODE": "PH17040",
+   "ADM1_PCODE": "PH17",
+   "AREA_SQKM": 922.577799055
+ },
+ {
+   "ADM2_EN": "Occidental Mindoro",
+   "ADM2_PCODE": "PH17051",
+   "ADM1_PCODE": "PH17",
+   "AREA_SQKM": 5972.28634853
+ },
+ {
+   "ADM2_EN": "Oriental Mindoro",
+   "ADM2_PCODE": "PH17052",
+   "ADM1_PCODE": "PH17",
+   "AREA_SQKM": 4198.5486294
+ },
+ {
+   "ADM2_EN": "Palawan",
+   "ADM2_PCODE": "PH17053",
+   "ADM1_PCODE": "PH17",
+   "AREA_SQKM": 14394.7248851
+ },
+ {
+   "ADM2_EN": "Romblon",
+   "ADM2_PCODE": "PH17059",
+   "ADM1_PCODE": "PH17",
+   "AREA_SQKM": 1309.67995644
+ },
+ {
+   "ADM2_EN": "Basilan",
+   "ADM2_PCODE": "PH19007",
+   "ADM1_PCODE": "PH19",
+   "AREA_SQKM": 1134.12718729
+ },
+ {
+   "ADM2_EN": "Lanao del Sur",
+   "ADM2_PCODE": "PH19036",
+   "ADM1_PCODE": "PH19",
+   "AREA_SQKM": 4104.47642065
+ },
+ {
+   "ADM2_EN": "Sulu",
+   "ADM2_PCODE": "PH19066",
+   "ADM1_PCODE": "PH19",
+   "AREA_SQKM": 1515.75321293
+ },
+ {
+   "ADM2_EN": "Tawi-Tawi",
+   "ADM2_PCODE": "PH19070",
+   "ADM1_PCODE": "PH19",
+   "AREA_SQKM": 1154.58192723
+ },
+ {
+   "ADM2_EN": "Maguindanao del Norte",
+   "ADM2_PCODE": "PH19087",
+   "ADM1_PCODE": "PH19",
+   "AREA_SQKM": 2551.17919226
+ },
+ {
+   "ADM2_EN": "Maguindanao del Sur",
+   "ADM2_PCODE": "PH19088",
+   "ADM1_PCODE": "PH19",
+   "AREA_SQKM": 2460.17557782
+ },
+ {
+   "ADM2_EN": "Special Geographic Area",
+   "ADM2_PCODE": "PH19099",
+   "ADM1_PCODE": "PH19",
+   "AREA_SQKM": 542.830197667
+ }
+]

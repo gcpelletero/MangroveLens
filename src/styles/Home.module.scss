@@ -1,0 +1,71 @@
+.title {
+  font-size: 3rem;
+  line-height: 1.15;
+  text-align: center;
+  margin: 0 0 1em;
+}
+
+.description {
+  font-size: 1.5rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.view {
+  text-align: center;
+  margin-top: 3em;
+}
+
+.code {
+  background: #fafafa;
+  border-radius: 5px;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+    Bitstream Vera Sans Mono, Courier New, monospace;
+}
+
+.mapUpdatingNotice {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1500;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+
+  color: #5f6872;
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+}
+
+.mapUpdatingSpinner {
+  width: 16px;
+  height: 16px;
+
+  border: 2px solid #dbe7f6;
+  border-top-color: #1683ff;
+  border-radius: 50%;
+
+  animation: mapUpdatingSpin 0.8s linear infinite;
+}
+
+@keyframes mapUpdatingSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

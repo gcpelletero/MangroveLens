@@ -1,0 +1,87 @@
+[
+ {
+   "ADM1_EN": "Region I (Ilocos Region)",
+   "ADM1_PCODE": "PH01",
+   "AREA_SQKM": 12307.3508282
+ },
+ {
+   "ADM1_EN": "Region II (Cagayan Valley)",
+   "ADM1_PCODE": "PH02",
+   "AREA_SQKM": 26387.7295553
+ },
+ {
+   "ADM1_EN": "Region III (Central Luzon)",
+   "ADM1_PCODE": "PH03",
+   "AREA_SQKM": 21304.1555189
+ },
+ {
+   "ADM1_EN": "Region IV-A (Calabarzon)",
+   "ADM1_PCODE": "PH04",
+   "AREA_SQKM": 15846.6305592
+ },
+ {
+   "ADM1_EN": "Region V (Bicol Region)",
+   "ADM1_PCODE": "PH05",
+   "AREA_SQKM": 17338.3755331
+ },
+ {
+   "ADM1_EN": "Region VI (Western Visayas)",
+   "ADM1_PCODE": "PH06",
+   "AREA_SQKM": 20047.6250003
+ },
+ {
+   "ADM1_EN": "Region VII (Central Visayas)",
+   "ADM1_PCODE": "PH07",
+   "AREA_SQKM": 14293.6578458
+ },
+ {
+   "ADM1_EN": "Region VIII (Eastern Visayas)",
+   "ADM1_PCODE": "PH08",
+   "AREA_SQKM": 20835.6751314
+ },
+ {
+   "ADM1_EN": "Region IX (Zamboanga Peninsula)",
+   "ADM1_PCODE": "PH09",
+   "AREA_SQKM": 14596.0535642
+ },
+ {
+   "ADM1_EN": "Region X (Northern Mindanao)",
+   "ADM1_PCODE": "PH10",
+   "AREA_SQKM": 17489.2866599
+ },
+ {
+   "ADM1_EN": "Region XI (Davao Region)",
+   "ADM1_PCODE": "PH11",
+   "AREA_SQKM": 18808.8779682
+ },
+ {
+   "ADM1_EN": "Region XII (Soccsksargen)",
+   "ADM1_PCODE": "PH12",
+   "AREA_SQKM": 17361.0538722
+ },
+ {
+   "ADM1_EN": "National Capital Region (NCR)",
+   "ADM1_PCODE": "PH13",
+   "AREA_SQKM": 598.539573033
+ },
+ {
+   "ADM1_EN": "Cordillera Administrative Region (CAR)",
+   "ADM1_PCODE": "PH14",
+   "AREA_SQKM": 18192.6440516
+ },
+ {
+   "ADM1_EN": "Region XIII (Caraga)",
+   "ADM1_PCODE": "PH16",
+   "AREA_SQKM": 18747.1657622
+ },
+ {
+   "ADM1_EN": "Mimaropa Region",
+   "ADM1_PCODE": "PH17",
+   "AREA_SQKM": 26797.8176185
+ },
+ {
+   "ADM1_EN": "Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)",
+   "ADM1_PCODE": "PH19",
+   "AREA_SQKM": 13463.1237159
+ }
+]

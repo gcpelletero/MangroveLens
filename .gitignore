@@ -1,0 +1,9 @@
+node_modules
+.next
+.env.local
+.env
+npm-debug.log
+.DS_Store
+# Google Earth Engine private key
+secrets/
+.env.local
