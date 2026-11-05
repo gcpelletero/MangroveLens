@@ -7,3 +7,5 @@ npm-debug.log
 # Google Earth Engine private key
 secrets/
 .env.local
+# Temporary Codex files
+.codex-temp/
