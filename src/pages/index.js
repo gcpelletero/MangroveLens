@@ -55,7 +55,7 @@ export default function Home() {
 
   // Date range for analysis
   const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [endDate, setEndDate] = useState('2022-12-31');
 
   const [appliedStartDate, setAppliedStartDate] = useState('');
   const [appliedEndDate, setAppliedEndDate] = useState('');
@@ -64,7 +64,7 @@ export default function Home() {
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRasterLoading, setIsRasterLoading] = useState(false);
-  const [selectedLayer, setSelectedLayer] = useState(null);
+  const [selectedLayer, setSelectedLayer] = useState('mvi');
 
   // Control panel visibility
   const [isPanelVisible, setIsPanelVisible] = useState(true);
@@ -89,8 +89,8 @@ export default function Home() {
   const [currentTimeSeriesUrl, setCurrentTimeSeriesUrl] = useState('');
 
   // Location selection state
-  const [selectedRegion, setSelectedRegion] = useState(null);
-  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedRegion, setSelectedRegion] = useState('PH17');
+  const [selectedProvince, setSelectedProvince] = useState('PH17053');
   const [selectedMunicipality, setSelectedMunicipality] = useState(null);
   const [regions] = useState(regionsData);
   const [provinces, setProvinces] = useState([]);
@@ -99,7 +99,7 @@ export default function Home() {
   // Animation state
   const [isAnimationPlaying, setIsAnimationPlaying] = useState(false);
 
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
 
 useEffect(() => {
@@ -1125,126 +1125,102 @@ const handleUpdateMap = (start, end) => {
     );
   };
 
+  const selectedYearLabel = getYear(endDate) || '—';
+  const activeView = selectedLayer === 'ndvi'
+    ? 'trends'
+    : selectedLayer === 'decline'
+      ? 'decline'
+      : showReferenceOutline
+        ? 'comparison'
+        : 'extent';
+
+  const selectView = (view) => {
+    if (view === 'extent') {
+      setShowReferenceOutline(false);
+      if (selectedLayer !== 'mvi') handleLayerChange('mvi');
+    } else if (view === 'comparison') {
+      setShowReferenceOutline(true);
+      setReferenceSource('gmw');
+      if (selectedLayer !== 'mvi') handleLayerChange('mvi');
+    } else if (view === 'trends') {
+      if (selectedLayer !== 'ndvi') handleLayerChange('ndvi');
+    } else if (view === 'decline') {
+      if (selectedLayer !== 'decline') handleLayerChange('decline');
+    }
+  };
+
   return (
     <Layout>
-      <div
-        style={{
-          display: 'flex',
-          width: '100%',
-          height: 'calc(100dvh - 64px)',
-          minHeight: 0,
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        {/* Toggle Button */}
-        <button
-          onClick={togglePanel}
-          style={{
-            position: 'absolute',
-            top: '78px',
-            left: isPanelVisible ? '330px' : '10px',
-            zIndex: 1001,
-            background: 'rgba(255, 255, 255, 0.95)',
-            border: '1px solid #a6a8a9ff',
-            borderRadius: '6px',
-            padding: '10px 12px',
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            fontSize: '16px',
-            transition: 'all 0.3s ease',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minWidth: '44px',
-            minHeight: '44px'
-          }}
-          title={isPanelVisible ? 'Hide Control Panel' : 'Show Control Panel'}
-          onMouseEnter={(e) => {
-            e.target.style.background = 'rgba(255, 255, 255, 1)';
-            e.target.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-            e.target.style.transform = 'scale(1)';
-          }}
-        >
-          {isPanelVisible ? '◀' : '▶'}
-        </button>
+      <div className={styles.workspace}>
+        <nav className={styles.rail} aria-label="Explorer navigation">
+          <div className={styles.railBrand} title="MangroveLens">♧</div>
+          <button type="button" title="Extent" aria-label="Extent"
+            className={activeView === 'extent' ? styles.railActive : styles.railButton}
+            onClick={() => selectView('extent')}>▦</button>
+          <button type="button" title="Comparison" aria-label="Comparison"
+            className={activeView === 'comparison' ? styles.railActive : styles.railButton}
+            onClick={() => selectView('comparison')}>◫</button>
+          <button type="button" title="NDVI trends" aria-label="NDVI trends"
+            className={activeView === 'trends' ? styles.railActive : styles.railButton}
+            onClick={() => selectView('trends')}>⌁</button>
+          <button type="button" title="Candidate change" aria-label="Candidate change"
+            className={activeView === 'decline' ? styles.railActive : styles.railButton}
+            onClick={() => selectView('decline')}>↘</button>
+          <div className={styles.railFooter}>ML</div>
+        </nav>
 
-        {/* Control Panel */}
-        <div
-          style={{
-            width: isPanelVisible ? '320px' : '0px',
-            minWidth: isPanelVisible ? '320px' : '0px',
-            height: '100%',
-            overflow: 'hidden',
-            transition: 'width 0.3s ease, min-width 0.3s ease',
-            flexShrink: 0,
-            zIndex: 1000
-          }}
-        >
-          <div
-            style={{
-              width: '320px',
-              height: '100%'
-            }}
-          >
-          <ControlPanel
-            showReferenceOutline={
-              showReferenceOutline
-            }
-            onShowReferenceOutlineChange={
-              setShowReferenceOutline
-            }
-            referenceSource={
-              referenceSource
-            }
-            onReferenceSourceChange={
-              setReferenceSource
-            }
-            startDate={startDate}
-            endDate={endDate}
-            selectedLayer={selectedLayer}
-            selectedRegion={selectedRegion}
-            selectedProvince={selectedProvince}
-            selectedMunicipality={selectedMunicipality}
-            regions={regions}
-            provinces={provinces}
-            municipalities={municipalities}
-            onLayerChange={handleLayerChange}
-            onRegionChange={handleRegionChange}
-            onProvinceChange={handleProvinceChange}
-            onMunicipalityChange={handleMunicipalityChange}
-            onDateChange={handleDateChange}
-            onUpdateMap={handleUpdateMap}
-            isUpdating={isUpdating}
-            error={error}
-          />
-        </div>
-      </div>
+        <section className={styles.content}>
+          <div className={styles.toolbar}>
+            <div>
+              <h1 className={styles.heading}>Mangrove Map Explorer</h1>
+              <p className={styles.subheading}>
+                Explore satellite-derived candidate extent, independent references, and vegetation trends over time.
+              </p>
+            </div>
+            <div className={styles.tabs} role="group" aria-label="Map view">
+              {[
+                ['extent', 'Extent'],
+                ['comparison', 'Comparison'],
+                ['trends', 'Trends']
+              ].map(([value, label]) => (
+                <button type="button" key={value}
+                  aria-pressed={activeView === value}
+                  className={activeView === value ? styles.tabActive : styles.tab}
+                  onClick={() => selectView(value)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        {/* Map Container */}
-        <div
-          style={{
-            flex: '1 1 0',
-            minWidth: 0,
-            height: '100%',
-            position: 'relative'
-          }}
-        >
-          <div style={{
-            position: 'relative',
-            width: '100%',
-            height: '100%'
-          }}>
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '100%'
-              }}
-            >
+          <div className={styles.columns}>
+            <div className={styles.controlsShell}>
+              <ControlPanel
+                showReferenceOutline={showReferenceOutline}
+                onShowReferenceOutlineChange={setShowReferenceOutline}
+                referenceSource={referenceSource}
+                onReferenceSourceChange={setReferenceSource}
+                startDate={startDate}
+                endDate={endDate}
+                selectedLayer={selectedLayer}
+                selectedRegion={selectedRegion}
+                selectedProvince={selectedProvince}
+                selectedMunicipality={selectedMunicipality}
+                regions={regions}
+                provinces={provinces}
+                municipalities={municipalities}
+                onLayerChange={handleLayerChange}
+                onRegionChange={handleRegionChange}
+                onProvinceChange={handleProvinceChange}
+                onMunicipalityChange={handleMunicipalityChange}
+                onDateChange={handleDateChange}
+                onUpdateMap={handleUpdateMap}
+                isUpdating={isUpdating}
+                error={error}
+              />
+            </div>
+
+            <div className={styles.mapShell}>
               <Map
                 center={center}
                 zoom={zoom}
@@ -1253,23 +1229,100 @@ const handleUpdateMap = (start, end) => {
                 selectedLayer={selectedLayer}
               >
                 {renderMapLayers}
-              </Map>  
+              </Map>
+              <div className={styles.mapLabel}>
+                <div className={styles.mapLabelStrong}>
+                  Palawan · {selectedYearLabel} {selectedLayer === 'mvi'
+                    ? (showReferenceOutline ? 'MVI + GMW reference' : 'MVI candidate extent')
+                    : selectedLayer === 'ndvi' ? 'NDVI' : 'candidate change'}
+                </div>
+                <div className={styles.mapLabelSub}>
+                  Sentinel-2 · {selectedLayer === 'mvi' ? 'annual MVI' : 'satellite-derived map'}
+                </div>
+              </div>
+              {(loading || isUpdating || isRasterLoading) && (
+                <div className={styles.mapUpdatingNotice} role="status">
+                  <span className={styles.mapUpdatingSpinner} />
+                  Loading map from Earth Engine…
+                </div>
+              )}
             </div>
 
-            {(loading || isUpdating || isRasterLoading) && (
-              <div className={styles.mapUpdatingNotice}>
-                <span className={styles.mapUpdatingSpinner} />
-                {selectedLayer === 'ndvi'
-                  ? 'Loading NDVI map...'
-                  : selectedLayer === 'mvi'
-                    ? 'Loading mangrove candidate map...'
-                    : selectedLayer === 'decline'
-                      ? 'Loading mangrove change map...'
-                      : 'Updating map...'}
+            <aside className={styles.analysisShell} aria-label="Analysis summary">
+              <h2 className={styles.analysisTitle}>Analysis summary</h2>
+              <div className={styles.status}>
+                <span className={styles.statusDot} />
+                {mapUrl ? 'Map layer loaded' : 'Choose settings and update the map'}
               </div>
-            )}
+
+              <h3 className={styles.analysisSubTitle}>SELECTED OBSERVATION</h3>
+              <div className={styles.metricCard}>
+                <div className={styles.metricLabel}>Selected layer</div>
+                <div className={styles.metricValue} style={{fontSize:'16px'}}>
+                  {selectedLayer === 'mvi'
+                    ? 'MVI candidate extent'
+                    : selectedLayer === 'ndvi'
+                      ? 'NDVI vegetation condition'
+                      : 'Candidate change'}
+                </div>
+                <div className={styles.metricNote}>
+                  {timeSeriesMetadata?.year || selectedYearLabel} · Palawan pilot
+                </div>
+              </div>
+              <div className={styles.metricCard}>
+                <div className={styles.metricLabel}>Mapped area (hectares)</div>
+                <div className={styles.metricValue}>— ha</div>
+                <div className={styles.metricNote}>
+                  No computed area statistic is supplied by the current map response.
+                </div>
+              </div>
+              <div className={styles.metricCard}>
+                <div className={styles.metricLabel}>Reference agreement</div>
+                <div className={styles.metricValue}>— %</div>
+                <div className={styles.metricNote}>
+                  A quantitative GMW agreement metric is not yet connected.
+                </div>
+              </div>
+
+              <div className={styles.legend}>
+                <div className={styles.legendTitle}>Map interpretation</div>
+                {selectedLayer === 'mvi' ? (
+                  <>
+                    <div className={styles.legendItem}>
+                      <span className={styles.legendSwatch} style={{background:'#00E676'}} />
+                      MVI-derived mangrove candidate extent
+                    </div>
+                    {showReferenceOutline && (
+                      <div className={styles.legendItem}>
+                        <span className={styles.legendSwatch} style={{background:'#FF00FF'}} />
+                        Same-year GMW reference outline
+                      </div>
+                    )}
+                  </>
+                ) : selectedLayer === 'decline' ? (
+                  <>
+                    {[
+                      ['#22b86b', 'Persistent candidate extent'],
+                      ['#e6524e', 'Candidate loss'],
+                      ['#3181d3', 'Candidate gain']
+                    ].map(([color, label]) => (
+                      <div key={label} className={styles.legendItem}>
+                        <span className={styles.legendSwatch} style={{background:color}} />{label}
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <p className={styles.note}>NDVI colors and ranges are available in the map legend after applying the view.</p>
+                )}
+              </div>
+              <p className={styles.note}>
+                GMW is a comparison reference, not ground truth. MVI candidate extents and
+                changes are provisional. The four-class NoData-aware GMW comparison
+                is a separate analysis product and is not shown by this outline toggle.
+              </p>
+            </aside>
           </div>
-        </div>
+        </section>
       </div>
     </Layout>
   );
