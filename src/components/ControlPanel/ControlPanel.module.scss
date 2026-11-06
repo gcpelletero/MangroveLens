@@ -1,82 +1,20 @@
-@import "@styles/settings/_settings";
-
-.footer {
-  width: 100%;
-  color: white;
-  background-color: #002D1B;
-  padding: 1.2em 0;
-
-  a {
-    color: inherit;
-  }
-
-  p {
-
-    margin: 0 0 .5em;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-  }
-}
-
-.footerContainer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  margin-bottom: 0.4em;
-
-  @media (max-width: 720px) {
-    flex-wrap: wrap;
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.footerLinks {
-  display: flex;
-  list-style: none;
-  padding: 0;
-  margin: 0 2em;
-
-  @media (max-width: 720px) {
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-  }
-
-  li {
-    margin: 0 0.8em;
-
-    &:first-child {
-      margin-left: 0;
-    }
-
-    &:last-child {
-      margin-right: 0;
-    }
-  }
-
-  a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-
-    svg {
-      margin-right: 0.4em;
-    }
-  }
-}
-
-.footerLegal {
-  a {
-    text-decoration: underline;
-  }
-}
+.panel { height:100%; overflow-y:auto; overflow-x:hidden; background:#fff; padding:18px; color:#173b35; scrollbar-width:thin; }
+.section { padding:4px 0 20px; margin-bottom:20px; border-bottom:1px solid #e7eee9; }
+.label { display:block; margin-bottom:9px; font-weight:700; font-size:12px; color:#163c36; }
+.select { appearance:auto; display:block; width:100%; min-height:48px; margin:0 0 10px; padding:10px 12px; background:#f7f9f7; border:1px solid #dfe9e2; border-radius:13px; color:#264f47; font-size:13px; outline-offset:2px; }
+.sectionHeading { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:16px; font-weight:700; font-size:13px; }
+.yearBadge { background:#e9f4eb; color:#26695a; border-radius:9px; padding:7px 10px; font-size:12px; }
+.yearGrid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+.yearButton,.yearActive { min-height:40px; padding:7px 2px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; transition:background .2s; }
+.yearButton { background:#f4f7f4; border:1px solid #e5ece7; color:#456a61; }
+.yearActive { background:#206759; border:1px solid #206759; color:#fff; }
+.yearButton:disabled,.yearActive:disabled { opacity:.6; cursor:not-allowed; }
+.helper { font-size:11px; line-height:1.55; color:#849791; margin:12px 0 0; }
+.periodFields .label { margin:13px 0 7px; }
+.updateButton { width:100%; min-height:50px; border:0; border-radius:13px; background:#226f5f; color:#fff; font-size:13px; font-weight:700; cursor:pointer; }
+.updateButton:hover:not(:disabled) { background:#185447; }
+.updateButton:disabled { opacity:.55; cursor:not-allowed; }
+.error { background:#fff1ee; border:1px solid #f3c7c1; color:#a63b2b; border-radius:9px; padding:10px; font-size:12px; line-height:1.5; }
+.footnote { font-size:11px; color:#91a19b; line-height:1.55; margin:18px 0 2px; }
+.dot { display:inline-block; height:7px; width:7px; margin-right:7px; background:#d8af48; border-radius:50%; }
+@media(max-width:480px){.panel{padding:14px}.yearGrid{grid-template-columns:repeat(4,minmax(0,1fr));}}
