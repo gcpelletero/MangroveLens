@@ -76,7 +76,17 @@ const layerOptions = [
 
   // const presetYears = ['2020', '2021', '2022', '2023'];
 
-  const yearOptions = ['2019', '2020', '2021', '2022', '2023', '2024'];
+  
+const yearOptions = [
+  '2019',
+  '2020',
+  '2021',
+  '2022',
+  '2023',
+  '2024',
+  '2025'
+];
+
 
   const getYearFromDate = (dateValue) => {
     if (!dateValue) return '';
@@ -698,8 +708,11 @@ const availableMviYears = [
                   fontWeight: '500',
                   color: '#495057'
                 }}
+
               >
-                Historical Year
+                {selectedLayer === 'ndvi'
+                  ? 'Start Year'
+                  : 'Historical Year'}
               </label>
 
               <select
@@ -753,9 +766,13 @@ const availableMviYears = [
                   fontWeight: '500',
                   color: '#495057'
                 }}
-              >
-                Current Year
-              </label>
+
+            >
+              {selectedLayer === 'ndvi'
+                ? 'End Year'
+                : 'Current Year'}
+            </label>
+
 
               <select
                 value={endYear}

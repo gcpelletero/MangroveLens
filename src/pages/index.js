@@ -11,6 +11,8 @@ import regionsData from './locdata/table_region.json';
 import styles from '@styles/Home.module.scss';
 import dynamic from 'next/dynamic';
 import LegendPanel from '@components/LegendPanel';
+import AnnualNdviGraph from '@components/AnnualNdviGraph/AnnualNdviGraph';
+
 
 const DEFAULT_CENTER = [11.02, 119.48];
 const DEFAULT_ZOOM = 11;
@@ -688,13 +690,14 @@ const handleUpdateMap = (start, end) => {
       appliedStartYear === 2019 &&
       appliedEndYear === 2024;
 
-    const shouldShowNdvi =
-      selectedLayer === 'ndvi' &&
-      selectedRegion === 'PH17' &&
-      selectedProvince === 'PH17053' &&
-      hasAppliedStudyPeriod &&
-      appliedStartYear === 2019 &&
-      appliedEndYear === 2024;
+  const shouldShowNdvi =
+    selectedLayer === 'ndvi' &&
+    selectedRegion === 'PH17' &&
+    selectedProvince === 'PH17053' &&
+    hasAppliedStudyPeriod &&
+    appliedEndYear >= 2019 &&
+    appliedEndYear <= 2025;
+
 
     // console.log('selectedLayer:', selectedLayer);
     // console.log('selectedRegion:', selectedRegion);
@@ -1097,6 +1100,16 @@ const handleUpdateMap = (start, end) => {
               onToggle={toggleLegend}
             />
           )}
+
+
+        {/* Annual NDVI Graph */}
+        {shouldShowNdvi && appliedStartYear && appliedEndYear && (
+          <AnnualNdviGraph
+            startYear={appliedStartYear}
+            endYear={appliedEndYear}
+          />
+        )}
+
 
         {/* NDVI Graph Panel */}
         {/* {selectedLayer === 'ndvi' && (

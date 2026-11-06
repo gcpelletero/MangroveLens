@@ -1,19 +1,18 @@
-import { NDVI_CLASSES } from '../../config/ndviConfig';
 
+import { NDVI_CLASSES } from '../../config/ndviConfig';
 
 const LegendPanel = ({
   selectedLayer,
   isVisible,
   onToggle
 }) => {
-  // For now, this component only handles the NDVI legend.
   if (selectedLayer !== 'ndvi') {
     return null;
   }
 
   return (
     <>
-      {/* Show or hide legend button */}
+      {/* Legend toggle button */}
       <button
         type="button"
         onClick={onToggle}
@@ -30,7 +29,7 @@ const LegendPanel = ({
           background: 'rgba(255, 255, 255, 0.96)',
           border: '1px solid #d8dee4',
           borderRadius: '7px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
           color: '#495057',
           fontSize: '13px',
           fontWeight: '600',
@@ -41,7 +40,7 @@ const LegendPanel = ({
         {isVisible ? 'Hide Legend' : 'Show Legend'}
       </button>
 
-      {/* Legend card */}
+      {/* Compact NDVI legend */}
       {isVisible && (
         <div
           style={{
@@ -49,53 +48,53 @@ const LegendPanel = ({
             right: '20px',
             bottom: '75px',
             zIndex: 1190,
-            width: '355px',
-            padding: '17px',
-            background: 'rgba(255, 255, 255, 0.96)',
+            width: '480px',
+            maxWidth: 'calc(100% - 40px)',
+            boxSizing: 'border-box',
+            padding: '10px 12px',
+            background: 'rgba(255, 255, 255, 0.97)',
             backdropFilter: 'blur(8px)',
             border: '1px solid #d8dee4',
             borderRadius: '12px',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16)'
+            boxShadow: '0 8px 24px rgba(0,0,0,0.16)'
           }}
         >
           {/* Header */}
-          <div style={{ marginBottom: '13px' }}>
-            <h4
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '7px',
-                margin: '0 0 6px',
-                color: '#24322a',
-                fontSize: '16px',
-                fontWeight: '700'
-              }}
-            >
-              <span>🌱</span>
-              Mangrove NDVI Legend
-            </h4>
+          <h4
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              margin: '0 0 4px',
+              color: '#24322a',
+              fontSize: '14px',
+              fontWeight: '700'
+            }}
+          >
+            <span>🌱</span>
+            Mangrove NDVI Legend
+          </h4>
 
-            <p
-              style={{
-                margin: 0,
-                color: '#606b64',
-                fontSize: '11px',
-                lineHeight: '1.45'
-              }}
-            >
-              NDVI represents vegetation greenness within baseline
-              mapped mangrove areas. Higher values generally indicate
-              greener and more continuous vegetation.
-            </p>
-          </div>
+          <p
+            style={{
+              margin: '0 0 8px',
+              color: '#606b64',
+              fontSize: '10px',
+              lineHeight: '1.3'
+            }}
+          >
+            NDVI indicates vegetation greenness within
+            each year's MVI-derived mangrove candidate areas.
+          </p>
 
-          {/* Legend items */}
+          {/* NDVI categories in three columns */}
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-              gap: '7px',
-              marginBottom: '13px'
+              gridTemplateColumns:
+                'repeat(3, minmax(0, 1fr))',
+              gap: '5px',
+              marginBottom: '7px'
             }}
           >
             {NDVI_CLASSES.map((item) => (
@@ -104,10 +103,10 @@ const LegendPanel = ({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '7px',
+                  gap: '5px',
                   minWidth: 0,
-                  padding: '6px 7px',
-                  background: 'rgba(248, 250, 248, 0.9)',
+                  padding: '4px 5px',
+                  background: '#f8faf8',
                   border: '1px solid #edf0ed',
                   borderRadius: '5px'
                 }}
@@ -115,11 +114,11 @@ const LegendPanel = ({
                 <span
                   aria-hidden="true"
                   style={{
-                    width: '14px',
-                    height: '14px',
+                    width: '11px',
+                    height: '11px',
                     flexShrink: 0,
                     backgroundColor: item.color,
-                    border: '1px solid rgba(0, 0, 0, 0.12)',
+                    border: '1px solid rgba(0,0,0,0.12)',
                     borderRadius: '3px'
                   }}
                 />
@@ -128,7 +127,7 @@ const LegendPanel = ({
                   <div
                     style={{
                       color: '#344039',
-                      fontSize: '10px',
+                      fontSize: '9px',
                       fontWeight: '600',
                       lineHeight: '1.2'
                     }}
@@ -140,7 +139,7 @@ const LegendPanel = ({
                     style={{
                       marginTop: '2px',
                       color: '#748078',
-                      fontSize: '9px'
+                      fontSize: '8px'
                     }}
                   >
                     NDVI {item.range}
@@ -151,38 +150,37 @@ const LegendPanel = ({
           </div>
 
           {/* Transparency explanation */}
-          <div
+          <p
             style={{
-              marginBottom: '11px',
-              padding: '7px 9px',
+              margin: '0 0 7px',
+              padding: '5px 7px',
               background: '#f6f8f6',
               borderRadius: '5px',
               color: '#657068',
-              fontSize: '10px',
-              lineHeight: '1.4'
+              fontSize: '9px',
+              lineHeight: '1.3'
             }}
           >
-            Transparent areas are outside the baseline mangrove mask,
-            contain no data, or have NDVI below 0.05.
-          </div>
+            Transparent areas are outside the annual
+            mangrove candidate mask or contain no NDVI data.
+          </p>
 
-          {/* Source */}
+          {/* Data sources */}
           <div
             style={{
-              paddingTop: '10px',
+              paddingTop: '6px',
               borderTop: '1px solid #e4e9e5',
               color: '#6c757d',
-              fontSize: '9.5px',
-              lineHeight: '1.5',
+              fontSize: '9px',
+              lineHeight: '1.35',
               textAlign: 'center'
             }}
           >
             <div>
-              NDVI source: Copernicus Sentinel-2 SR Harmonized
+              NDVI: Copernicus Sentinel-2 SR Harmonized
             </div>
             <div>
-              Mangrove mask: Landsat-derived Global Mangrove Forests
-              (2000 baseline)
+              Mask: Same-year MVI-derived mangrove candidate extent
             </div>
           </div>
         </div>
@@ -192,3 +190,4 @@ const LegendPanel = ({
 };
 
 export default LegendPanel;
+  
