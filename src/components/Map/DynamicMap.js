@@ -50,6 +50,7 @@ function LocationMarker() {
       }}
     >
       <MapContainer
+        zoomControl={false}
         className={mapClassName}
         center={center}
         zoom={zoom}
@@ -59,6 +60,7 @@ function LocationMarker() {
           height: '100%'
         }}
       >
+        <ReactLeaflet.ZoomControl position="topright" />
         <LocationMarker />
 
         <MapController
