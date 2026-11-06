@@ -551,6 +551,8 @@ const handleLayerChange = (layerType) => {
   };
 
   const handleDateChange = ({ startDate: newStartDate, endDate: newEndDate }) => {
+    setMapUrl('');
+    setTimeSeriesMetadata(null);
     setStartDate(newStartDate);
     setEndDate(newEndDate);
 
