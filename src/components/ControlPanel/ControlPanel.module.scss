@@ -1,20 +1,22 @@
-.panel { height:100%; overflow-y:auto; overflow-x:hidden; background:#fff; padding:18px; color:#173b35; scrollbar-width:thin; }
-.section { padding:4px 0 20px; margin-bottom:20px; border-bottom:1px solid #e7eee9; }
-.label { display:block; margin-bottom:9px; font-weight:700; font-size:12px; color:#163c36; }
-.select { appearance:auto; display:block; width:100%; min-height:48px; margin:0 0 10px; padding:10px 12px; background:#f7f9f7; border:1px solid #dfe9e2; border-radius:13px; color:#264f47; font-size:13px; outline-offset:2px; }
-.sectionHeading { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:16px; font-weight:700; font-size:13px; }
-.yearBadge { background:#e9f4eb; color:#26695a; border-radius:9px; padding:7px 10px; font-size:12px; }
-.yearGrid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
-.yearButton,.yearActive { min-height:40px; padding:7px 2px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; transition:background .2s; }
-.yearButton { background:#f4f7f4; border:1px solid #e5ece7; color:#456a61; }
-.yearActive { background:#206759; border:1px solid #206759; color:#fff; }
-.yearButton:disabled,.yearActive:disabled { opacity:.6; cursor:not-allowed; }
-.helper { font-size:11px; line-height:1.55; color:#849791; margin:12px 0 0; }
-.periodFields .label { margin:13px 0 7px; }
-.updateButton { width:100%; min-height:50px; border:0; border-radius:13px; background:#226f5f; color:#fff; font-size:13px; font-weight:700; cursor:pointer; }
-.updateButton:hover:not(:disabled) { background:#185447; }
-.updateButton:disabled { opacity:.55; cursor:not-allowed; }
-.error { background:#fff1ee; border:1px solid #f3c7c1; color:#a63b2b; border-radius:9px; padding:10px; font-size:12px; line-height:1.5; }
-.footnote { font-size:11px; color:#91a19b; line-height:1.55; margin:18px 0 2px; }
-.dot { display:inline-block; height:7px; width:7px; margin-right:7px; background:#d8af48; border-radius:50%; }
-@media(max-width:480px){.panel{padding:14px}.yearGrid{grid-template-columns:repeat(4,minmax(0,1fr));}}
+.panel {height:100%;overflow:auto;padding:20px 17px;background:white;color:#19322e;scrollbar-width:thin;}
+.heading {font-size:14px;letter-spacing:-.2px;margin:0 0 5px;font-weight:800;}
+.description {font-size:11px;color:#85948c;margin:0 0 25px;line-height:1.5;}
+.field {margin-bottom:19px;}
+.field label {display:block;font-weight:750;font-size:11px;margin-bottom:9px;}
+.field select {display:block;width:100%;color:#324b44;background-color:#f7f9f6;border:1px solid #e2e9e3;border-radius:11px;padding:12px 11px;font-size:12px;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="%23647d73" stroke-width="1.8" viewBox="0 0 24 24"%3E%3Cpath d="m6 9 6 6 6-6"/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 10px center;}
+.field select:disabled {opacity:.75;}
+.rule {height:1px;background:#e9eee8;margin:19px 0;}
+.yearHead {display:flex;align-items:center;justify-content:space-between;font-size:11px;}
+.yearTag {font-size:10px;color:#568776;background:#eaf4ed;padding:6px 8px;border-radius:8px;font-weight:800;}
+.yearOptions {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:11px;}
+.yearButton,.yearActive {border-radius:9px;padding:9px 0;font-size:10px;font-weight:800;cursor:pointer;min-width:0;}
+.yearButton {background:#f5f8f5;border:1px solid #e6eee8;color:#687e74;}
+.yearActive {background:#1f594b;border:1px solid #1f594b;color:white;}
+.yearButton:disabled,.yearActive:disabled {opacity:.65;cursor:wait;}
+.help {font-size:10px;line-height:1.55;color:#9aa7a0;margin:10px 0 0;}
+.apply {border:0;background:#226c5b;color:white;width:100%;height:43px;border-radius:12px;font-weight:800;font-size:12px;margin-top:7px;cursor:pointer;}
+.apply:hover:not(:disabled){background:#194b40;}
+.apply:disabled {opacity:.55;cursor:not-allowed;}
+.note {color:#8ba096;font-size:10px;line-height:1.6;margin:16px 0;}
+.dot {display:inline-block;width:6px;height:6px;background:#d2b057;border-radius:100%;margin-right:6px;}
+.error {background:#fff1ee;border:1px solid #ecc3be;color:#99463e;border-radius:9px;padding:10px;font-size:11px;line-height:1.5;}
