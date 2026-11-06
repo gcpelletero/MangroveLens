@@ -12,6 +12,7 @@ import styles from '@styles/Home.module.scss';
 import dynamic from 'next/dynamic';
 import LegendPanel from '@components/LegendPanel';
 import AnnualNdviGraph from '@components/AnnualNdviGraph/AnnualNdviGraph';
+import CoastalIllustration from '@components/Map/CoastalIllustration';
 
 
 const DEFAULT_CENTER = [11.02, 119.48];
@@ -55,7 +56,7 @@ export default function Home() {
 
   // Date range for analysis
   const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('2022-12-31');
+  const [endDate, setEndDate] = useState('2024-12-31');
 
   const [appliedStartDate, setAppliedStartDate] = useState('');
   const [appliedEndDate, setAppliedEndDate] = useState('');
@@ -100,6 +101,7 @@ export default function Home() {
   const [isAnimationPlaying, setIsAnimationPlaying] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
+  const [showProjectInfo, setShowProjectInfo] = useState(false);
 
 
 useEffect(() => {
@@ -718,8 +720,8 @@ const handleUpdateMap = (start, end) => {
       <>
         {/* Base Map Layer */}
         <TileLayer
-          url={`https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${process.env.NEXT_PUBLIC_CARTO_API_KEY}`}
-          attribution='&copy; OpenStreetMap contributors &copy; CARTO'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; OpenStreetMap contributors'
         />
 
         {/* Data Layer */}
@@ -788,64 +790,6 @@ const handleUpdateMap = (start, end) => {
             }}
           />
         )} */}
-
-        {/* Active Layer Info */}
-        {selectedLayer && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '20px',
-              right: '20px',
-              zIndex: 1000,
-              background: 'rgba(255, 255, 255, 0.95)',
-              padding: '12px 16px',
-              borderRadius: '10px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-              minWidth: '240px'
-            }}
-          >
-            <div
-              style={{
-                fontSize: '14px',
-                fontWeight: '700',
-                marginBottom: '6px',
-                color: '#1f2937'
-              }}
-            >
-            {selectedLayer === 'ndvi'
-              ? 'NDVI View'
-              : selectedLayer === 'mvi'
-                ? timeSeriesMetadata?.year
-                  ? `Mangrove Candidate Extent — ${timeSeriesMetadata.year}`
-                  : 'Mangrove Candidate Extent'
-                : selectedLayer === 'decline'
-                  ? timeSeriesMetadata?.historicalYear &&
-                    timeSeriesMetadata?.currentYear
-                    ? `Mangrove Candidate Change — ${timeSeriesMetadata.historicalYear} to ${timeSeriesMetadata.currentYear}`
-                    : 'Mangrove Candidate Change'
-                  : 'MangroveLens'}
-            </div>
-
-            <div style={{ fontSize: '12px', color: '#4b5563', lineHeight: '1.5' }}>
-              {selectedLayer === 'ndvi'
-                ? 'View annual vegetation condition using Sentinel-2 NDVI.'
-                : selectedLayer === 'mvi'
-                  ? timeSeriesMetadata?.year
-                    ? `Green areas show the ${timeSeriesMetadata.year} MVI-derived mangrove candidate extent after threshold, patch-size, and water-proximity screening.${
-                        showReferenceOutline
-                          ? ' The magenta outline shows the same-year Global Mangrove Watch reference for visual comparison only.'
-                          : ''
-                      }`
-                    : 'Loading the annual MVI-derived mangrove candidate extent.'
-                  : selectedLayer === 'decline'
-                    ? timeSeriesMetadata?.historicalYear &&
-                      timeSeriesMetadata?.currentYear
-                      ? `Green shows persistent candidate extent, red shows candidate loss, and blue shows candidate gain between ${timeSeriesMetadata.historicalYear} and ${timeSeriesMetadata.currentYear}. These are provisional candidate changes, not confirmed deforestation or restoration.`
-                      : 'Loading the mangrove candidate change map.'
-                    : ''}
-            </div>
-          </div>
-        )}
 
         {/* Real GEE Output Preview */}
         {/* {selectedLayer === 'decline' && (
@@ -1126,203 +1070,217 @@ const handleUpdateMap = (start, end) => {
   };
 
   const selectedYearLabel = getYear(endDate) || '—';
-  const activeView = selectedLayer === 'ndvi'
-    ? 'trends'
-    : selectedLayer === 'decline'
-      ? 'decline'
-      : showReferenceOutline
-        ? 'comparison'
-        : 'extent';
-
+  const activeView = selectedLayer === 'ndvi' ? 'trends'
+    : selectedLayer === 'decline' ? 'trends'
+    : showReferenceOutline ? 'comparison' : 'extent';
+  const hasLiveMap = Boolean(mapUrl);
   const selectView = (view) => {
-    if (view === 'extent') {
-      setShowReferenceOutline(false);
-      if (selectedLayer !== 'mvi') handleLayerChange('mvi');
-    } else if (view === 'comparison') {
-      setShowReferenceOutline(true);
+    if (view === 'extent' || view === 'comparison') {
+      const outline = view === 'comparison';
+      setShowReferenceOutline(outline);
       setReferenceSource('gmw');
-      if (selectedLayer !== 'mvi') handleLayerChange('mvi');
-    } else if (view === 'trends') {
-      if (selectedLayer !== 'ndvi') handleLayerChange('ndvi');
-    } else if (view === 'decline') {
-      if (selectedLayer !== 'decline') handleLayerChange('decline');
+      if (selectedLayer !== 'mvi') {
+        handleLayerChange('mvi');
+      } else {
+        setMapUrl('');
+        setTimeSeriesMetadata(null);
+      }
+    } else if (view === 'trends' && selectedLayer !== 'ndvi' && selectedLayer !== 'decline') {
+      handleLayerChange('ndvi');
     }
   };
 
   return (
     <Layout>
-      <div className={styles.workspace}>
-        <nav className={styles.rail} aria-label="Explorer navigation">
-          <div className={styles.railBrand} title="MangroveLens">♧</div>
-          <button type="button" title="Extent" aria-label="Extent"
-            className={activeView === 'extent' ? styles.railActive : styles.railButton}
-            onClick={() => selectView('extent')}>▦</button>
-          <button type="button" title="Comparison" aria-label="Comparison"
-            className={activeView === 'comparison' ? styles.railActive : styles.railButton}
-            onClick={() => selectView('comparison')}>◫</button>
-          <button type="button" title="NDVI trends" aria-label="NDVI trends"
-            className={activeView === 'trends' ? styles.railActive : styles.railButton}
-            onClick={() => selectView('trends')}>⌁</button>
-          <button type="button" title="Candidate change" aria-label="Candidate change"
-            className={activeView === 'decline' ? styles.railActive : styles.railButton}
-            onClick={() => selectView('decline')}>↘</button>
-          <div className={styles.railFooter}>ML</div>
+      <div className={styles.pageShell}>
+        <nav className={styles.rail} aria-label="Primary navigation">
+          <div className={styles.mark} title="MangroveLens">
+            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <path d="M16 27V12m0 9-9 5m9-7 8 6M16 13c-8 0-11-5-10-10 7 0 10 3 10 10Zm0-1c0-7 5-10 11-10 0 6-4 10-11 10Z"
+                stroke="#c7f6e0" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <button title="Overview" aria-label="Overview" type="button"
+            className={styles.navButton} onClick={()=>selectView('extent')}>
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" aria-hidden="true">
+              <rect x="3" y="3" width="8" height="8" rx="2"/>
+              <rect x="13" y="3" width="8" height="5" rx="2"/>
+              <rect x="13" y="10" width="8" height="11" rx="2"/>
+              <rect x="3" y="13" width="8" height="8" rx="2"/>
+            </svg>
+          </button>
+          <button title="Map Explorer" aria-label="Map Explorer" type="button"
+            className={activeView !== 'trends' ? styles.navActive : styles.navButton}
+            onClick={()=>selectView('extent')}>
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" aria-hidden="true">
+              <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Zm6-3v15m6-12v15"/>
+            </svg>
+          </button>
+          <button title="Monitoring" aria-label="Monitoring" type="button"
+            className={activeView === 'trends' ? styles.navActive : styles.navButton}
+            onClick={()=>selectView('trends')}>
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" aria-hidden="true">
+              <path d="M4 19V6m0 13h16M7 15l4-4 3 2 5-7"/>
+            </svg>
+          </button>
+          <div className={styles.navBottom}>
+            <button title="About the project" aria-label="About the project" type="button"
+              className={styles.navButton} onClick={()=>setShowProjectInfo(!showProjectInfo)}>
+              <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.7" aria-hidden="true">
+                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7-3a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 0 0-1.7-1L14.5 3h-4L10 6a7 7 0 0 0-1.7 1L6 6 4 9.5 6 11a7 7 0 0 0 0 2l-2 1.5L6 18l2.3-1a7 7 0 0 0 1.7 1l.5 3h4l.5-3a7 7 0 0 0 1.7-1l2.3 1 2-3.5-2-1.5a7 7 0 0 0 .1-1Z"/>
+              </svg>
+            </button>
+            <div className={styles.avatar}>ML</div>
+          </div>
         </nav>
-
-        <section className={styles.content}>
-          <div className={styles.toolbar}>
+        {showProjectInfo && (
+          <div style={{position:'fixed',left:83,bottom:22,zIndex:1200,maxWidth:260,padding:15,
+            background:'white',border:'1px solid #e4ebe6',borderRadius:12,fontSize:12,
+            boxShadow:'0 12px 32px #153a3030'}}>
+            MangroveLens is a research prototype for monitoring provisional mangrove candidate extent.
+            <button type="button" style={{display:'block',marginTop:10}} onClick={()=>setShowProjectInfo(false)}>Close</button>
+          </div>
+        )}
+        <div className={styles.content}>
+          <div className={styles.headingRow}>
             <div>
-              <h1 className={styles.heading}>Mangrove Map Explorer</h1>
-              <p className={styles.subheading}>
-                Explore satellite-derived candidate extent, independent references, and vegetation trends over time.
-              </p>
+              <h1>Mangrove Map Explorer</h1>
+              <p>Explore candidate extent and same-year reference agreement through time.</p>
             </div>
-            <div className={styles.tabs} role="group" aria-label="Map view">
-              {[
-                ['extent', 'Extent'],
-                ['comparison', 'Comparison'],
-                ['trends', 'Trends']
-              ].map(([value, label]) => (
-                <button type="button" key={value}
-                  aria-pressed={activeView === value}
-                  className={activeView === value ? styles.tabActive : styles.tab}
-                  onClick={() => selectView(value)}>
-                  {label}
-                </button>
+            <div className={styles.segmented} role="group" aria-label="Analysis mode">
+              {[['extent','Extent'],['comparison','Comparison'],['trends','Trends']].map(([view,label])=>(
+                <button key={view} type="button" aria-pressed={activeView===view}
+                  className={activeView===view ? styles.tabActive : styles.tab}
+                  onClick={()=>selectView(view)}>{label}</button>
               ))}
             </div>
           </div>
-
-          <div className={styles.columns}>
-            <div className={styles.controlsShell}>
+          <div className={styles.workspace}>
+            <section className={styles.controlsCard}>
               <ControlPanel
-                showReferenceOutline={showReferenceOutline}
-                onShowReferenceOutlineChange={setShowReferenceOutline}
-                referenceSource={referenceSource}
-                onReferenceSourceChange={setReferenceSource}
                 startDate={startDate}
                 endDate={endDate}
                 selectedLayer={selectedLayer}
-                selectedRegion={selectedRegion}
-                selectedProvince={selectedProvince}
                 selectedMunicipality={selectedMunicipality}
-                regions={regions}
-                provinces={provinces}
                 municipalities={municipalities}
-                onLayerChange={handleLayerChange}
-                onRegionChange={handleRegionChange}
-                onProvinceChange={handleProvinceChange}
                 onMunicipalityChange={handleMunicipalityChange}
+                onLayerChange={handleLayerChange}
                 onDateChange={handleDateChange}
                 onUpdateMap={handleUpdateMap}
                 isUpdating={isUpdating}
                 error={error}
+                showReferenceOutline={showReferenceOutline}
+                onShowReferenceOutlineChange={(value)=>{
+                  setShowReferenceOutline(value);
+                  setMapUrl('');
+                  setTimeSeriesMetadata(null);
+                }}
+                referenceSource={referenceSource}
+                onReferenceSourceChange={setReferenceSource}
               />
-            </div>
-
-            <div className={styles.mapShell}>
-              <Map
-                center={center}
-                zoom={zoom}
-                selectedRegion={selectedRegion}
-                selectedProvince={selectedProvince}
-                selectedLayer={selectedLayer}
-              >
-                {renderMapLayers}
-              </Map>
-              <div className={styles.mapLabel}>
-                <div className={styles.mapLabelStrong}>
-                  Palawan · {selectedYearLabel} {selectedLayer === 'mvi'
-                    ? (showReferenceOutline ? 'MVI + GMW reference' : 'MVI candidate extent')
-                    : selectedLayer === 'ndvi' ? 'NDVI' : 'candidate change'}
+            </section>
+            <section className={styles.mapCard} aria-label="Mangrove map area">
+              {!hasLiveMap && <CoastalIllustration />}
+              {hasLiveMap && (
+                <Map
+                  center={center}
+                  zoom={zoom}
+                  selectedRegion={selectedRegion}
+                  selectedProvince={selectedProvince}
+                  selectedLayer={selectedLayer}
+                >
+                  {renderMapLayers}
+                </Map>
+              )}
+              <div className={styles.mapTop}>
+                <div className={styles.mapLabel}>
+                  <div className={styles.mapPin}>⌖</div>
+                  <div>
+                    <strong>Palawan · {selectedYearLabel} {activeView === 'comparison' ? 'comparison' : selectedLayer === 'mvi' ? 'MVI candidate extent' : selectedLayer === 'ndvi' ? 'NDVI' : 'candidate change'}</strong>
+                    <small>{activeView==='comparison' ? 'Sentinel-2 MVI × same-year GMW outline' : 'Sentinel-2 · MangroveLens monitoring'}</small>
+                  </div>
                 </div>
-                <div className={styles.mapLabelSub}>
-                  Sentinel-2 · {selectedLayer === 'mvi' ? 'annual MVI' : 'satellite-derived map'}
-                </div>
+                {!hasLiveMap && <div className={styles.mapTools} aria-label="Zoom unavailable before map loads">
+                  <button type="button" disabled title="Load the map to zoom">+</button>
+                  <button type="button" disabled title="Load the map to zoom">−</button>
+                </div>}
               </div>
+              {!hasLiveMap && (
+                <>
+                  <div className={styles.mapOverlay}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+                      <path d="M3 17 9 4l5 10 3-5 4 8m-18 4h18M12 9l3 6"/>
+                    </svg>
+                    <strong>Illustrative map canvas</strong>
+                    <p>Select a year and update the map<br/>to load real Earth Engine layers.</p>
+                  </div>
+                  <div className={styles.mapBottom}>
+                    <div className={styles.mapNote}>
+                      Concept background only · coastal shapes and colored marks are illustrative, not scientific results.
+                    </div>
+                    <div className={styles.mapScale}>Map area</div>
+                  </div>
+                </>
+              )}
               {(loading || isUpdating || isRasterLoading) && (
                 <div className={styles.mapUpdatingNotice} role="status">
-                  <span className={styles.mapUpdatingSpinner} />
-                  Loading map from Earth Engine…
+                  <span className={styles.mapUpdatingSpinner} />Loading map from Earth Engine…
                 </div>
               )}
-            </div>
+            </section>
 
-            <aside className={styles.analysisShell} aria-label="Analysis summary">
-              <h2 className={styles.analysisTitle}>Analysis summary</h2>
+            <aside className={styles.infoCard} aria-label="Analysis summary">
+              <h2>Analysis summary</h2>
               <div className={styles.status}>
-                <span className={styles.statusDot} />
-                {mapUrl ? 'Map layer loaded' : 'Choose settings and update the map'}
+                <span className={styles.statusDot}/>
+                {hasLiveMap ? 'Map layer loaded' : 'Results will appear when connected'}
               </div>
-
-              <h3 className={styles.analysisSubTitle}>SELECTED OBSERVATION</h3>
-              <div className={styles.metricCard}>
-                <div className={styles.metricLabel}>Selected layer</div>
-                <div className={styles.metricValue} style={{fontSize:'16px'}}>
-                  {selectedLayer === 'mvi'
-                    ? 'MVI candidate extent'
-                    : selectedLayer === 'ndvi'
-                      ? 'NDVI vegetation condition'
-                      : 'Candidate change'}
+              <p className={styles.metricHead}>Selected observation</p>
+              <div className={styles.metric}>
+                <div className={styles.metricLabel}>
+                  {selectedLayer==='mvi' ? 'MVI candidate extent' : selectedLayer==='ndvi' ? 'NDVI condition' : 'Candidate change'}
                 </div>
-                <div className={styles.metricNote}>
-                  {timeSeriesMetadata?.year || selectedYearLabel} · Palawan pilot
-                </div>
+                <p className={styles.metricValue}>— <span className={styles.metricUnit}>ha</span></p>
+                <div className={styles.metricSub}>No computed area statistic loaded</div>
               </div>
-              <div className={styles.metricCard}>
-                <div className={styles.metricLabel}>Mapped area (hectares)</div>
-                <div className={styles.metricValue}>— ha</div>
-                <div className={styles.metricNote}>
-                  No computed area statistic is supplied by the current map response.
-                </div>
+              <div className={styles.metric}>
+                <div className={styles.metricLabel}>Agreement with GMW</div>
+                <p className={styles.metricValue}>— <span className={styles.metricUnit}>%</span></p>
+                <div className={styles.metricSub}>No computed agreement statistic loaded</div>
               </div>
-              <div className={styles.metricCard}>
-                <div className={styles.metricLabel}>Reference agreement</div>
-                <div className={styles.metricValue}>— %</div>
-                <div className={styles.metricNote}>
-                  A quantitative GMW agreement metric is not yet connected.
+              <div className={styles.rule}/>
+              <p className={styles.legendTitle}>Map interpretation</p>
+              {selectedLayer==='mvi' && (
+                <div className={styles.legend} style={{marginBottom:16}}>
+                  <div className={styles.legendRow}>
+                    <span className={styles.swatch} style={{background:'#00E676'}}/>Current MVI candidate layer
+                  </div>
+                  {showReferenceOutline && <div className={styles.legendRow}>
+                    <span className={styles.swatch} style={{background:'#FF00FF'}}/>GMW outline (currently available reference)
+                  </div>}
                 </div>
-              </div>
-
+              )}
+              <p className={styles.smallNote}>Four-color GMW comparison key (not yet loaded as a map layer):</p>
               <div className={styles.legend}>
-                <div className={styles.legendTitle}>Map interpretation</div>
-                {selectedLayer === 'mvi' ? (
-                  <>
-                    <div className={styles.legendItem}>
-                      <span className={styles.legendSwatch} style={{background:'#00E676'}} />
-                      MVI-derived mangrove candidate extent
-                    </div>
-                    {showReferenceOutline && (
-                      <div className={styles.legendItem}>
-                        <span className={styles.legendSwatch} style={{background:'#FF00FF'}} />
-                        Same-year GMW reference outline
-                      </div>
-                    )}
-                  </>
-                ) : selectedLayer === 'decline' ? (
-                  <>
-                    {[
-                      ['#22b86b', 'Persistent candidate extent'],
-                      ['#e6524e', 'Candidate loss'],
-                      ['#3181d3', 'Candidate gain']
-                    ].map(([color, label]) => (
-                      <div key={label} className={styles.legendItem}>
-                        <span className={styles.legendSwatch} style={{background:color}} />{label}
-                      </div>
-                    ))}
-                  </>
-                ) : (
-                  <p className={styles.note}>NDVI colors and ranges are available in the map legend after applying the view.</p>
-                )}
+                {[
+                  ['#337fd3','Overlap: MVI and GMW'],
+                  ['#ca4aa3','GMW only'],
+                  ['#eb8743','MVI only (GMW valid non-mangrove)'],
+                  ['#e7bf34','MVI candidate (GMW NoData)']
+                ].map(([color,label])=>(
+                  <div className={styles.legendRow} key={label}>
+                    <span className={styles.swatch} style={{background:color}}/>
+                    <span>{label}</span>
+                  </div>
+                ))}
               </div>
-              <p className={styles.note}>
-                GMW is a comparison reference, not ground truth. MVI candidate extents and
-                changes are provisional. The four-class NoData-aware GMW comparison
-                is a separate analysis product and is not shown by this outline toggle.
+              <p className={styles.source}>
+                GMW is a comparison reference, not ground truth. Yellow does not imply GMW disagreement.
+                The separate NoData-aware comparison uses a 30 m common grid; it is not this map's current tile layer.
               </p>
             </aside>
           </div>
-        </section>
+        </div>
       </div>
     </Layout>
   );
