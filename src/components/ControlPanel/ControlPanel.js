@@ -1,214 +1,120 @@
 import styles from './ControlPanel.module.scss';
 
-const YEARS = ['2019', '2020', '2021', '2022', '2023', '2024', '2025'];
-
-const yearOf = (value) => value ? String(value).slice(0, 4) : '';
+const YEARS = ['2019','2020','2021','2022','2023','2024','2025'];
+const yearOf = (date) => date ? String(date).slice(0,4) : '';
 
 export default function ControlPanel({
-  startDate,
-  endDate,
-  onDateChange,
-  onUpdateMap,
-  isUpdating = false,
-  error = null,
-  regions = [],
-  selectedLayer,
-  selectedRegion,
-  selectedProvince,
-  selectedMunicipality,
-  onRegionChange,
-  onProvinceChange,
-  onMunicipalityChange,
-  provinces = [],
-  municipalities = [],
-  showReferenceOutline = false,
-  onShowReferenceOutlineChange,
-  referenceSource = 'gmw',
+  startDate, endDate, onDateChange, onUpdateMap, onLayerChange,
+  isUpdating=false, error=null, selectedLayer, selectedMunicipality,
+  onMunicipalityChange, municipalities=[],
+  showReferenceOutline=false, onShowReferenceOutlineChange,
   onReferenceSourceChange
 }) {
-  const currentYear = yearOf(endDate);
-  const historicalYear = yearOf(startDate);
   const isMvi = selectedLayer === 'mvi';
-  const isInvalidRange = !isMvi && historicalYear && currentYear &&
-    Number(historicalYear) > Number(currentYear);
-  const canUpdate = isMvi
-    ? Boolean(currentYear)
-    : Boolean(historicalYear && currentYear && !isInvalidRange);
-
-  const chooseMviYear = (year) => onDateChange({
-    startDate: '',
-    endDate: year + '-12-31'
-  });
-
-  const chooseHistoricalYear = (year) => onDateChange({
-    startDate: year ? year + '-01-01' : '',
-    endDate
-  });
-
-  const chooseCurrentYear = (year) => onDateChange({
-    startDate,
-    endDate: year ? year + '-12-31' : ''
-  });
+  const selectedYear = yearOf(endDate);
+  const historicalYear = yearOf(startDate);
+  const invalidRange = !isMvi && historicalYear && selectedYear &&
+    Number(historicalYear) > Number(selectedYear);
+  const canApply = isMvi ? Boolean(selectedYear) :
+    Boolean(historicalYear && selectedYear && !invalidRange);
+  const setMviYear = (year) => onDateChange({startDate:'',endDate:year+'-12-31'});
+  const setStartYear = (year) => onDateChange({startDate:year ? year+'-01-01' : '',endDate});
+  const setEndYear = (year) => onDateChange({startDate,endDate:year ? year+'-12-31' : ''});
 
   return (
-    <aside className={styles.panel} aria-label="Map controls">
-      <div className={styles.section}>
-        <label className={styles.label} htmlFor="focus-region">Focus area</label>
-        <select
-          id="focus-region"
-          className={styles.select}
-          value={selectedRegion || ''}
-          onChange={(event) => onRegionChange(event.target.value)}
+    <aside className={styles.panel} aria-label="Map filters">
+      <h2 className={styles.heading}>Explore your coastline</h2>
+      <p className={styles.description}>Choose a location and year to explore satellite-derived maps.</p>
+
+      <div className={styles.field}>
+        <label htmlFor="ml-study-region">Study region</label>
+        <select id="ml-study-region" value="palawan" disabled aria-label="Study region (Palawan pilot)">
+          <option value="palawan">Palawan</option>
+        </select>
+      </div>
+      <div className={styles.field}>
+        <label htmlFor="ml-focus-area">Focus area</label>
+        <select id="ml-focus-area"
+          value={selectedMunicipality || ''}
           disabled={isUpdating}
-        >
-          <option value="">Select region</option>
-          {regions.map((region) => (
-            <option key={region.ADM1_PCODE} value={region.ADM1_PCODE}>
-              {region.ADM1_EN}
-            </option>
+          onChange={(event)=>onMunicipalityChange(event.target.value)}>
+          <option value="">All of Palawan</option>
+          {municipalities.map((m)=>(
+            <option key={m.ADM3_PCODE} value={m.ADM3_PCODE}>{m.ADM3_EN}</option>
           ))}
         </select>
-
-        {selectedRegion && (
-          <select
-            aria-label="Province"
-            className={styles.select}
-            value={selectedProvince || ''}
-            onChange={(event) => onProvinceChange(event.target.value)}
-            disabled={isUpdating}
-          >
-            <option value="">Select province</option>
-            {provinces.map((province) => (
-              <option key={province.ADM2_PCODE} value={province.ADM2_PCODE}>
-                {province.ADM2_EN}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {selectedProvince && (
-          <select
-            aria-label="Municipality"
-            className={styles.select}
-            value={selectedMunicipality || ''}
-            onChange={(event) => onMunicipalityChange(event.target.value)}
-            disabled={isUpdating}
-          >
-            <option value="">All municipalities</option>
-            {municipalities.map((municipality) => (
-              <option key={municipality.ADM3_PCODE} value={municipality.ADM3_PCODE}>
-                {municipality.ADM3_EN}
-              </option>
-            ))}
-          </select>
-        )}
-        <p className={styles.helper}>
-          Earth Engine map layers currently cover the Palawan pilot area.
-          Municipality selection is not yet a separate raster clip.
-        </p>
+        {selectedMunicipality && <p className={styles.help}>Municipality selection does not yet clip the satellite layer.</p>}
       </div>
 
-      <div className={styles.section}>
-        <div className={styles.sectionHeading}>
-          <span>{isMvi ? 'Observation year' : 'Observation period'}</span>
-          {currentYear && <span className={styles.yearBadge}>{currentYear}</span>}
-        </div>
-
-        {isMvi ? (
-          <>
-            <div className={styles.yearGrid} role="group" aria-label="Observation year">
-              {YEARS.map((year) => (
-                <button
-                  key={year}
-                  type="button"
-                  disabled={isUpdating}
-                  className={currentYear === year ? styles.yearActive : styles.yearButton}
-                  aria-pressed={currentYear === year}
-                  onClick={() => chooseMviYear(year)}
-                >
-                  {year}
-                </button>
-              ))}
-            </div>
-            <p className={styles.helper}>
-              Annual Sentinel-2 MVI-derived mangrove candidate extent, 2019–2025.
-            </p>
-          </>
-        ) : (
-          <div className={styles.periodFields}>
-            <label className={styles.label} htmlFor="historical-year">
-              {selectedLayer === 'ndvi' ? 'Start year' : 'Historical year'}
-            </label>
-            <select
-              id="historical-year"
-              className={styles.select}
-              value={historicalYear}
-              onChange={(event) => chooseHistoricalYear(event.target.value)}
-              disabled={isUpdating}
-            >
-              <option value="">Select year</option>
-              {YEARS.map((year) => <option value={year} key={year}>{year}</option>)}
-            </select>
-            <label className={styles.label} htmlFor="current-year">
-              {selectedLayer === 'ndvi' ? 'End year' : 'Current year'}
-            </label>
-            <select
-              id="current-year"
-              className={styles.select}
-              value={currentYear}
-              onChange={(event) => chooseCurrentYear(event.target.value)}
-              disabled={isUpdating}
-            >
-              <option value="">Select year</option>
-              {YEARS.map((year) => <option value={year} key={year}>{year}</option>)}
-            </select>
-            {isInvalidRange && (
-              <p className={styles.error}>Historical year cannot be later than current year.</p>
-            )}
+      <div className={styles.rule}/>
+      {isMvi ? (
+        <>
+          <div className={styles.yearHead}>
+            <strong>Observation year</strong>
+            {selectedYear && <span className={styles.yearTag}>{selectedYear}</span>}
           </div>
-        )}
-      </div>
-
+          <div className={styles.yearOptions} role="group" aria-label="Observation year">
+            {YEARS.map((year)=>(
+              <button key={year} type="button" disabled={isUpdating}
+                aria-pressed={selectedYear===year}
+                className={selectedYear===year ? styles.yearActive : styles.yearButton}
+                onClick={()=>setMviYear(year)}>{year}</button>
+            ))}
+          </div>
+          <p className={styles.help}>Annual Sentinel-2 MVI-derived candidate extent: 2019–2025</p>
+        </>
+      ):(
+        <>
+          <div className={styles.yearHead}><strong>Observation period</strong></div>
+          <div className={styles.field}>
+            <label htmlFor="ml-start-year">Historical year</label>
+            <select id="ml-start-year" disabled={isUpdating} value={historicalYear}
+              onChange={(event)=>setStartYear(event.target.value)}>
+              <option value="">Select year</option>
+              {YEARS.map((y)=><option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="ml-end-year">Current year</label>
+            <select id="ml-end-year" disabled={isUpdating} value={selectedYear}
+              onChange={(event)=>setEndYear(event.target.value)}>
+              <option value="">Select year</option>
+              {YEARS.map((y)=><option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="ml-analysis-layer">Analysis layer</label>
+            <select id="ml-analysis-layer" disabled={isUpdating} value={selectedLayer}
+              onChange={(event)=>onLayerChange(event.target.value)}>
+              <option value="ndvi">NDVI vegetation condition</option>
+              <option value="decline">Candidate change</option>
+            </select>
+          </div>
+          {invalidRange && <p className={styles.error}>Historical year cannot be later than current year.</p>}
+        </>
+      )}
+      <div className={styles.rule}/>
       {isMvi && (
-        <div className={styles.section}>
-          <div className={styles.sectionHeading}>Reference layer</div>
-          <select
-            className={styles.select}
-            aria-label="Reference layer"
-            disabled={isUpdating}
-            value={showReferenceOutline ? 'gmw' : 'none'}
-            onChange={(event) => {
-              const enabled = event.target.value === 'gmw';
+        <div className={styles.field}>
+          <label htmlFor="ml-reference-layer">Reference layer</label>
+          <select id="ml-reference-layer" disabled={isUpdating}
+            value={showReferenceOutline ? 'gmw' : 'mvi'}
+            onChange={(event)=>{
+              const enabled=event.target.value==='gmw';
               onShowReferenceOutlineChange?.(enabled);
-              if (enabled) onReferenceSourceChange?.('gmw');
-            }}
-          >
-            <option value="none">MVI candidate extent</option>
+              if(enabled)onReferenceSourceChange?.('gmw');
+            }}>
+            <option value="mvi">MVI candidate extent</option>
             <option value="gmw">MVI + same-year GMW outline</option>
           </select>
-          {showReferenceOutline && referenceSource === 'gmw' && (
-            <p className={styles.helper}>
-              GMW is an independent comparison reference, not ground truth.
-              The current map draws its outline rather than a four-class agreement raster.
-            </p>
-          )}
         </div>
       )}
-
-      <button
-        type="button"
-        className={styles.updateButton}
-        onClick={() => onUpdateMap(startDate, endDate)}
-        disabled={isUpdating || !canUpdate}
-      >
+      <button className={styles.apply} type="button" disabled={isUpdating || !canApply}
+        onClick={()=>onUpdateMap(startDate,endDate)}>
         {isUpdating ? 'Updating map…' : 'Update map view'}
       </button>
       {error && <p className={styles.error} role="alert">{error}</p>}
-
-      <p className={styles.footnote}>
-        <span className={styles.dot} />
-        Results are provisional satellite-derived observations, not field-validated ground truth.
-      </p>
+      <p className={styles.note}><span className={styles.dot}/>Provisional observations only. GMW is a comparison reference, not ground truth.</p>
     </aside>
   );
 }
