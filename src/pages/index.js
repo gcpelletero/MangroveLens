@@ -12,11 +12,15 @@ import styles from '@styles/Home.module.scss';
 import dynamic from 'next/dynamic';
 import LegendPanel from '@components/LegendPanel';
 import AnnualNdviGraph from '@components/AnnualNdviGraph/AnnualNdviGraph';
-import CoastalIllustration from '@components/Map/CoastalIllustration';
 
 
-const DEFAULT_CENTER = [11.02, 119.48];
-const DEFAULT_ZOOM = 11;
+// The first view is a real map of the Philippines, with no Earth Engine tiles yet.
+const DEFAULT_CENTER = [12.0, 122.5];
+const DEFAULT_ZOOM = 6;
+
+// Once a mangrove layer is loaded, focus on the Palawan pilot area.
+const PALAWAN_CENTER = [11.02, 119.48];
+const PALAWAN_ZOOM = 11;
 const MAX_BOUNDS = [
   [21.063944194047764, 134.95605468750003],
   [2.9349970669152285, 105.38085937500001],
@@ -279,8 +283,8 @@ const fetchMapData = async (
         result.metadata || null
       );
 
-      setCenter(DEFAULT_CENTER);
-      setZoom(DEFAULT_ZOOM);
+      setCenter(PALAWAN_CENTER);
+      setZoom(PALAWAN_ZOOM);
       setBounds(null);
     }
 
@@ -352,8 +356,8 @@ if (layerType === 'decline') {
    */
   setIsLegendVisible(true);
 
-  setCenter(DEFAULT_CENTER);
-  setZoom(DEFAULT_ZOOM);
+  setCenter(PALAWAN_CENTER);
+  setZoom(PALAWAN_ZOOM);
   setBounds(null);
 }
 
@@ -460,8 +464,8 @@ const response = await fetch(
    */
   setIsLegendVisible(false);
 
-  setCenter(DEFAULT_CENTER);
-  setZoom(DEFAULT_ZOOM);
+  setCenter(PALAWAN_CENTER);
+  setZoom(PALAWAN_ZOOM);
   setBounds(null);
 }
 
@@ -1181,52 +1185,41 @@ const handleUpdateMap = (start, end) => {
                 onReferenceSourceChange={setReferenceSource}
               />
             </section>
-            <section className={styles.mapCard} aria-label="Mangrove map area">
-              {!hasLiveMap && <CoastalIllustration />}
-              {hasLiveMap && (
-                <Map
-                  center={center}
-                  zoom={zoom}
-                  selectedRegion={selectedRegion}
-                  selectedProvince={selectedProvince}
-                  selectedLayer={selectedLayer}
-                >
-                  {renderMapLayers}
-                </Map>
-              )}
+            <section className={styles.mapCard} aria-label="Interactive Philippines map">
+              <Map
+                center={center}
+                zoom={zoom}
+                // The pilot selection is used for GEE requests, not for auto-zoom on startup.
+                // MapController uses center/zoom to show the Philippines first and Palawan after loading.
+                selectedRegion={null}
+                selectedProvince={selectedProvince}
+                selectedLayer={selectedLayer}
+              >
+                {renderMapLayers}
+              </Map>
+
               <div className={styles.mapTop}>
                 <div className={styles.mapLabel}>
                   <div className={styles.mapPin}>⌖</div>
                   <div>
-                    <strong>Palawan · {selectedYearLabel} {activeView === 'comparison' ? 'comparison' : selectedLayer === 'mvi' ? 'MVI candidate extent' : selectedLayer === 'ndvi' ? 'NDVI' : 'candidate change'}</strong>
-                    <small>{activeView==='comparison' ? 'Sentinel-2 MVI × same-year GMW outline' : 'Sentinel-2 · MangroveLens monitoring'}</small>
+                    <strong>
+                      {hasLiveMap
+                        ? `Palawan · ${selectedYearLabel} ${activeView === 'comparison' ? 'MVI + GMW outline' : selectedLayer === 'mvi' ? 'MVI candidate extent' : selectedLayer === 'ndvi' ? 'NDVI' : 'candidate change'}`
+                        : 'Philippines · Map overview'}
+                    </strong>
+                    <small>
+                      {hasLiveMap
+                        ? 'Sentinel-2 · Google Earth Engine layer'
+                        : 'OpenStreetMap basemap · Choose a year and update the map'}
+                    </small>
                   </div>
                 </div>
-                {!hasLiveMap && <div className={styles.mapTools} aria-label="Zoom unavailable before map loads">
-                  <button type="button" disabled title="Load the map to zoom">+</button>
-                  <button type="button" disabled title="Load the map to zoom">−</button>
-                </div>}
               </div>
-              {!hasLiveMap && (
-                <>
-                  <div className={styles.mapOverlay}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-                      <path d="M3 17 9 4l5 10 3-5 4 8m-18 4h18M12 9l3 6"/>
-                    </svg>
-                    <strong>Illustrative map canvas</strong>
-                    <p>Select a year and update the map<br/>to load real Earth Engine layers.</p>
-                  </div>
-                  <div className={styles.mapBottom}>
-                    <div className={styles.mapNote}>
-                      Concept background only · coastal shapes and colored marks are illustrative, not scientific results.
-                    </div>
-                    <div className={styles.mapScale}>Map area</div>
-                  </div>
-                </>
-              )}
+
               {(loading || isUpdating || isRasterLoading) && (
                 <div className={styles.mapUpdatingNotice} role="status">
-                  <span className={styles.mapUpdatingSpinner} />Loading map from Earth Engine…
+                  <span className={styles.mapUpdatingSpinner} />
+                  Loading map from Earth Engine…
                 </div>
               )}
             </section>
