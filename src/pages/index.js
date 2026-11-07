@@ -383,47 +383,6 @@ if (layerType === 'mvi') {
     );
   }
 
-  /*
-   * Temporary threshold for visual comparison.
-   *
-   * Change this value between:
-   * 3.5 and 4
-   */
-  // const testThreshold = 3.5;
-  // const minPatchPixels = 5;
-
-  // const maxWaterDistanceMeters = 1000;
-  // const minWaterOccurrencePercent = 10;
-
-  // /*
-  //  * Remove any previous raw MVI map before
-  //  * requesting the candidate classification.
-  //  */
-  // setMapUrl('');
-
-  // const response = await fetch(
-  //   `/api/mvi-candidate?year=${encodeURIComponent(
-  //     selectedYear
-  //   )}&threshold=${encodeURIComponent(
-  //     testThreshold
-  //   )}&minPatchPixels=${encodeURIComponent(
-  //     minPatchPixels
-  //   )}&maxWaterDistanceMeters=${encodeURIComponent(
-  //     maxWaterDistanceMeters
-  //   )}&minWaterOccurrencePercent=${encodeURIComponent(
-  //     minWaterOccurrencePercent
-  //   )}`,
-  //   {
-  //     cache: 'no-store'
-  //   }
-  // );
-
-  /*
-  * Remove the previous map before requesting
-  * the clean annual mangrove candidate layer.
-  */
-  // setMapUrl('');
-
 const referenceParameter =
   showReferenceOutline
     ? referenceSource
