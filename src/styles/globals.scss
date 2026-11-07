@@ -191,3 +191,27 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* MangroveLens map-explorer zoom controls: match the approved floating map buttons. */
+.leaflet-top.leaflet-right .leaflet-control-zoom {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 17px 18px 0 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.leaflet-top.leaflet-right .leaflet-control-zoom a {
+  height: 36px;
+  width: 36px;
+  line-height: 34px;
+  border: 1px solid #dbe9e4;
+  border-radius: 10px !important;
+  background: #fff;
+  color: #305649;
+  box-shadow: 0 3px 12px #183e3520;
+}
+.leaflet-top.leaflet-right .leaflet-control-zoom a:hover {
+  background: #f7fbf8;
+}

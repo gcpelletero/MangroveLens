@@ -1,31 +1,29 @@
+import { useState } from 'react';
 import Link from 'next/link';
-import Container from '@components/Container';
 import styles from './Header.module.scss';
 
-const Header = () => {
+export default function Header() {
+  const [isAboutOpen,setIsAboutOpen]=useState(false);
   return (
     <header className={styles.header}>
-      <Container className={styles.headerContainer}>
-        <div className={styles.headerTitle}>
-          <Link href="/" style={{ textDecoration: 'none', color: 'white' }}>
-            <div>
-              <div style={{ fontSize: '24px', fontWeight: '700', lineHeight: '1.1' }}>
-                MangroveLens
-              </div>
-              <div style={{ fontSize: '12px', opacity: 0.9 }}>
-                Web-Based Mangrove Monitoring Tool
-              </div>
-            </div>
-          </Link>
+      <div>
+        <div className={styles.eyebrow}>Environmental Intelligence</div>
+        <Link href="/" className={styles.title}>MangroveLens<span>.</span></Link>
+        <div className={styles.subtitle}>Coastal change monitoring for Palawan, Philippines</div>
+      </div>
+      <div className={styles.actions}>
+        <span className={styles.pilot}>Palawan pilot study</span>
+        <button type="button" className={styles.aboutButton} onClick={()=>setIsAboutOpen(!isAboutOpen)}
+          aria-expanded={isAboutOpen}>About this view</button>
+      </div>
+      {isAboutOpen && (
+        <div className={styles.aboutPopup} role="dialog" aria-label="About this map">
+          <button type="button" aria-label="Close" className={styles.close} onClick={()=>setIsAboutOpen(false)}>×</button>
+          <strong>About MangroveLens</strong>
+          <p>Explore provisional annual Sentinel-2 MVI-derived candidate mangrove extent for Palawan (2019–2025).</p>
+          <p>GMW provides an independent same-year comparison reference, not field ground truth. The illustrated map shown before loading a layer is decorative only.</p>
         </div>
-
-        <ul className={styles.headerLinks}>
-          <li style={{ color: 'white', fontWeight: '500' }}>Palawan Pilot Area</li>
-          <li style={{ color: 'white', fontWeight: '500' }}>NDVI & Decline View</li>
-        </ul>
-      </Container>
+      )}
     </header>
   );
-};
-
-export default Header;
+}
