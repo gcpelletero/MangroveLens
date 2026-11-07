@@ -1189,8 +1189,6 @@ const handleUpdateMap = (start, end) => {
               <Map
                 center={center}
                 zoom={zoom}
-                // The pilot selection is used for GEE requests, not for auto-zoom on startup.
-                // MapController uses center/zoom to show the Philippines first and Palawan after loading.
                 selectedRegion={null}
                 selectedProvince={selectedProvince}
                 selectedLayer={selectedLayer}
