@@ -1,3 +1,6 @@
+import { ANNUAL_NDVI_MEANS } from '../../lib/annualNdviMeans';
+
+
 const ControlPanel = ({
   startDate,
   endDate,
@@ -102,6 +105,14 @@ const yearOptions = [
 
   const startYear = getYearFromDate(startDate);
   const endYear = getYearFromDate(endDate);
+
+  const startAnnualNdvi = ANNUAL_NDVI_MEANS.find(
+    (item) => item.year === Number(startYear)
+  );
+
+  const endAnnualNdvi = ANNUAL_NDVI_MEANS.find(
+    (item) => item.year === Number(endYear)
+  );
 
   const isInvalidYearRange =
     startYear &&
@@ -1235,21 +1246,39 @@ const availableMviYears = [
           {selectedLayer === 'ndvi' ? 'NDVI Summary' : 'Decline Summary'}
         </div>
 
-        {selectedLayer === 'ndvi' ? (
-          <>
-            <div style={{ color: '#2e7d32', marginBottom: '6px' }}>
-              <strong>Mean NDVI 2019:</strong> 0.1618
-            </div>
 
-            <div style={{ color: '#2e7d32', marginBottom: '6px' }}>
-              <strong>Mean NDVI 2024:</strong> 0.1687
-            </div>
+      {selectedLayer === 'ndvi' ? (
+        <>
+          <div style={{ color: '#2e7d32', marginBottom: '6px' }}>
+            <strong>Annual Mean NDVI {startYear || '—'}:</strong>{' '}
+            {startAnnualNdvi
+              ? startAnnualNdvi.meanNdvi.toFixed(4)
+              : '—'}
+          </div>
 
-            <div style={{ fontSize: '12px', color: '#5f6b6d', marginTop: '8px', lineHeight: '1.4' }}>
-              The selected pilot area shows a slight increase in overall mean NDVI from 2019 to 2024.
-            </div>
-          </>
-        ) : (
+          <div style={{ color: '#2e7d32', marginBottom: '6px' }}>
+            <strong>Annual Mean NDVI {endYear || '—'}:</strong>{' '}
+            {endAnnualNdvi
+              ? endAnnualNdvi.meanNdvi.toFixed(4)
+              : '—'}
+          </div>
+
+          <div
+            style={{
+              fontSize: '12px',
+              color: '#5f6b6d',
+              marginTop: '8px',
+              lineHeight: '1.4'
+            }}
+          >
+            Annual mean NDVI is calculated within each year's
+            MVI-derived mangrove candidate extent. Differences
+            may reflect changes in mapped areas as well as
+            vegetation greenness.
+          </div>
+        </>
+      ) : (
+
           <>
             <div style={{ color: '#c62828', marginBottom: '6px' }}>
               <strong>Decline Pixel Count:</strong> 197208.56

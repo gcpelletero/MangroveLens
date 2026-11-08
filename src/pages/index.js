@@ -32,6 +32,8 @@ const GeoTiffOverlay = dynamic(
 
 export default function Home() {
   const [mapUrl, setMapUrl] = useState('');
+  const [persistentOverlayUrl, setPersistentOverlayUrl] = useState('');
+  const [showPersistentOverlay, setShowPersistentOverlay] = useState(true);
 
   /*
   * Optional mangrove-reference overlay.
@@ -270,8 +272,31 @@ const fetchMapData = async (
         result
       );
 
+
       setMapUrl(result.mapUrl);
+
+      // Load the persistent mangrove candidate outline.
+      try {
+        const overlayResponse = await fetch(
+          '/api/persistent-mvi-overlay',
+          { cache: 'no-store' }
+        );
+
+        const overlayResult = await overlayResponse.json();
+
+        if (overlayResponse.ok && overlayResult.success) {
+          setPersistentOverlayUrl(overlayResult.mapUrl);
+        } else {
+          setPersistentOverlayUrl('');
+          console.error('Persistent overlay could not be loaded.');
+        }
+      } catch (overlayError) {
+        console.error('Persistent overlay error:', overlayError);
+        setPersistentOverlayUrl('');
+      }
+
       setIsLegendVisible(true);
+
 
       setTimeSeriesMetadata(
         result.metadata || null
@@ -714,6 +739,47 @@ const handleUpdateMap = (start, end) => {
             maxNativeZoom={13}
             maxZoom={18}
           />
+        )}
+
+
+        {/* Persistent mangrove candidate outline (2019–2025) */}
+        {selectedLayer === 'ndvi' && showPersistentOverlay && persistentOverlayUrl && (          <TileLayer
+            key={persistentOverlayUrl}
+            url={persistentOverlayUrl}
+            attribution="Google Earth Engine"
+            opacity={1}
+            maxNativeZoom={13}
+            maxZoom={18}
+          />
+        )}
+
+
+        {/* Toggle persistent mangrove candidate outlines */}
+        {selectedLayer === 'ndvi' && (
+          <label
+            style={{
+              position: 'absolute',
+              bottom: '25px',
+              left: '20px',
+              zIndex: 1000,
+              background: 'white',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              fontSize: '13px'
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={showPersistentOverlay}
+              onChange={(e) => setShowPersistentOverlay(e.target.checked)}
+            />
+            Show Persistent Areas (2019–2025)
+          </label>
         )}
 
 
