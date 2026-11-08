@@ -1,9 +1,8 @@
 
-import { ANNUAL_NDVI_MEANS } from '../../lib/annualNdviMeans';
+import { PERSISTENT_NDVI_MEANS } from '../../lib/persistentNdviMeans';
 
 const AnnualNdviGraph = ({ startYear, endYear }) => {
-  const data = ANNUAL_NDVI_MEANS.filter(
-    (item) =>
+const data = PERSISTENT_NDVI_MEANS.filter(    (item) =>
       item.year >= Number(startYear) &&
       item.year <= Number(endYear)
   );
@@ -15,8 +14,8 @@ const AnnualNdviGraph = ({ startYear, endYear }) => {
   const top = 20;
   const bottom = 200;
 
-  const minNdvi = 0.80;
-  const maxNdvi = 0.88;
+const minNdvi = 0.84;
+const maxNdvi = 0.92;
 
   const getX = (index) =>
     data.length === 1
@@ -37,7 +36,7 @@ const AnnualNdviGraph = ({ startYear, endYear }) => {
     )
     .join(' ');
 
-  const yTicks = [0.80, 0.82, 0.84, 0.86, 0.88];
+const yTicks = [0.84, 0.86, 0.88, 0.90, 0.92];
 
   return (
     <div
@@ -61,7 +60,7 @@ const AnnualNdviGraph = ({ startYear, endYear }) => {
           fontSize: '16px'
         }}
       >
-        Annual Mean NDVI
+        Persistent Mangrove Candidate NDVI
       </h4>
 
       <p
@@ -71,14 +70,14 @@ const AnnualNdviGraph = ({ startYear, endYear }) => {
           color: '#6b7280'
         }}
       >
-        Palawan mangrove candidate areas • {startYear}–{endYear}
+        Palawan • Persistent candidate areas (2019–2025) • {startYear}–{endYear}
       </p>
 
       <svg
         viewBox="0 0 420 250"
         width="100%"
         role="img"
-        aria-label="Annual mean NDVI line graph"
+        aria-label="Persistent mangrove candidate mean NDVI line graph"
       >
         {yTicks.map((value) => (
           <g key={value}>
@@ -146,10 +145,12 @@ const AnnualNdviGraph = ({ startYear, endYear }) => {
           lineHeight: '1.5'
         }}
       >
-        Annual mean NDVI within each year's MVI-derived
-        mangrove candidate extent. Changes may reflect
-        differences in the mapped area as well as greenness;
-        they do not confirm vegetation degradation or recovery.
+        Mean NDVI within the same 22,096.83 hectares of
+        consistently detected mangrove candidate areas
+        from 2019 to 2025. Changes indicate variations
+        in average vegetation greenness, not confirmed
+        mangrove degradation or recovery. Newly detected
+        and disappearing candidate areas are excluded.
       </p>
     </div>
   );
