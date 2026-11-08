@@ -7,8 +7,11 @@ export default function ControlPanel({
   startDate, endDate, onDateChange, onUpdateMap, onLayerChange,
   isUpdating=false, error=null, selectedLayer, selectedMunicipality,
   onMunicipalityChange, municipalities=[],
+
   showReferenceOutline=false, onShowReferenceOutlineChange,
-  onReferenceSourceChange
+  onReferenceSourceChange,
+  showPersistentOverlay=false, onShowPersistentOverlayChange
+
 }) {
   const isMvi = selectedLayer === 'mvi';
   const selectedYear = yearOf(endDate);
@@ -109,6 +112,31 @@ export default function ControlPanel({
           </select>
         </div>
       )}
+
+
+      {selectedLayer === 'ndvi' && (
+        <div className={styles.field}>
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: 'pointer'
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={showPersistentOverlay}
+              onChange={(event) =>
+                onShowPersistentOverlayChange?.(event.target.checked)
+              }
+            />
+            <span>Show Persistent Areas (2019–2025)</span>
+          </label>
+        </div>
+      )}
+
+
       <button className={styles.apply} type="button" disabled={isUpdating || !canApply}
         onClick={()=>onUpdateMap(startDate,endDate)}>
         {isUpdating ? 'Updating map…' : 'Update map view'}

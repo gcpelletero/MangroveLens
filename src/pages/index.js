@@ -10,9 +10,9 @@ import provincesData from './locdata/table_province.json';
 import regionsData from './locdata/table_region.json';
 import styles from '@styles/Home.module.scss';
 import dynamic from 'next/dynamic';
-import LegendPanel from '@components/LegendPanel';
+import { NDVI_CLASSES } from '../config/ndviConfig';
 import AnnualNdviGraph from '@components/AnnualNdviGraph/AnnualNdviGraph';
-
+import { ANNUAL_NDVI_MEANS } from '../lib/annualNdviMeans';
 
 // The first view is a real map of the Philippines, with no Earth Engine tiles yet.
 const DEFAULT_CENTER = [12.0, 122.5];
@@ -37,6 +37,9 @@ const GeoTiffOverlay = dynamic(
 
 export default function Home() {
   const [mapUrl, setMapUrl] = useState('');
+
+  const [persistentOverlayUrl, setPersistentOverlayUrl] = useState('');
+  const [showPersistentOverlay, setShowPersistentOverlay] = useState(true);
 
   /*
   * Optional mangrove-reference overlay.
@@ -276,8 +279,31 @@ const fetchMapData = async (
         result
       );
 
+
       setMapUrl(result.mapUrl);
+
+      // Load the persistent mangrove candidate outline.
+      try {
+        const overlayResponse = await fetch(
+          '/api/persistent-mvi-overlay',
+          { cache: 'no-store' }
+        );
+
+        const overlayResult = await overlayResponse.json();
+
+        if (overlayResponse.ok && overlayResult.success) {
+          setPersistentOverlayUrl(overlayResult.mapUrl);
+        } else {
+          setPersistentOverlayUrl('');
+          console.error('Persistent overlay could not be loaded.');
+        }
+      } catch (overlayError) {
+        console.error('Persistent overlay error:', overlayError);
+        setPersistentOverlayUrl('');
+      }
+
       setIsLegendVisible(true);
+
 
       setTimeSeriesMetadata(
         result.metadata || null
@@ -725,6 +751,20 @@ const handleUpdateMap = (start, end) => {
         )}
 
 
+      {/* Persistent mangrove candidate outline (2019–2025) */}
+      {selectedLayer === 'ndvi' &&
+        showPersistentOverlay &&
+        persistentOverlayUrl && (
+          <TileLayer
+            key={persistentOverlayUrl}
+            url={persistentOverlayUrl}
+            attribution="Google Earth Engine"
+            opacity={1}
+            maxNativeZoom={13}
+            maxZoom={18}
+          />
+        )}
+
         {/* {shouldShowNdvi && (
           <GeoTiffOverlay
             url="/data/palawan_mangrove_ndvi_2024_single.tif"
@@ -1001,15 +1041,6 @@ const handleUpdateMap = (start, end) => {
           </button>
         )}
 
-        {/* Legend Panel */}
-          {shouldShowNdvi && (
-            <LegendPanel
-              selectedLayer="ndvi"
-              isVisible={isLegendVisible}
-              onToggle={toggleLegend}
-            />
-          )}
-
 
         {/* Annual NDVI Graph */}
         {shouldShowNdvi && appliedStartYear && appliedEndYear && (
@@ -1034,7 +1065,22 @@ const handleUpdateMap = (start, end) => {
     );
   };
 
+  
   const selectedYearLabel = getYear(endDate) || '—';
+
+  // Annual mean NDVI for the selected observation years.
+  // Each value uses that year's own MVI mangrove candidate extent.
+  const historicalNdviYear = getYear(appliedStartDate);
+  const currentNdviYear = getYear(appliedEndDate);
+
+  const historicalAnnualNdvi = ANNUAL_NDVI_MEANS.find(
+    (item) => item.year === historicalNdviYear
+  );
+
+  const currentAnnualNdvi = ANNUAL_NDVI_MEANS.find(
+    (item) => item.year === currentNdviYear
+  );
+
   const activeView = selectedLayer === 'ndvi' ? 'trends'
     : selectedLayer === 'decline' ? 'trends'
     : showReferenceOutline ? 'comparison' : 'extent';
@@ -1140,8 +1186,12 @@ const handleUpdateMap = (start, end) => {
                   setMapUrl('');
                   setTimeSeriesMetadata(null);
                 }}
-                referenceSource={referenceSource}
-                onReferenceSourceChange={setReferenceSource}
+
+              referenceSource={referenceSource}
+              onReferenceSourceChange={setReferenceSource}
+              showPersistentOverlay={showPersistentOverlay}
+              onShowPersistentOverlayChange={setShowPersistentOverlay}
+
               />
             </section>
             <section className={styles.mapCard} aria-label="Interactive Philippines map">
@@ -1187,19 +1237,77 @@ const handleUpdateMap = (start, end) => {
                 <span className={styles.statusDot}/>
                 {hasLiveMap ? 'Map layer loaded' : 'Results will appear when connected'}
               </div>
-              <p className={styles.metricHead}>Selected observation</p>
-              <div className={styles.metric}>
-                <div className={styles.metricLabel}>
-                  {selectedLayer==='mvi' ? 'MVI candidate extent' : selectedLayer==='ndvi' ? 'NDVI condition' : 'Candidate change'}
+
+            {selectedLayer === 'ndvi' ? (
+              <>
+                <p className={styles.metricHead}>Annual NDVI Summary</p>
+
+                <div className={styles.metric}>
+                  <div className={styles.metricLabel}>
+                    Historical Year ({historicalNdviYear || '—'})
+                  </div>
+                  <p className={styles.metricValue}>
+                    {hasAppliedStudyPeriod && historicalAnnualNdvi
+                      ? historicalAnnualNdvi.meanNdvi.toFixed(4)
+                      : '—'}
+                  </p>
+                  <div className={styles.metricSub}>
+                    Annual mean NDVI
+                  </div>
                 </div>
-                <p className={styles.metricValue}>— <span className={styles.metricUnit}>ha</span></p>
-                <div className={styles.metricSub}>No computed area statistic loaded</div>
-              </div>
-              <div className={styles.metric}>
-                <div className={styles.metricLabel}>Agreement with GMW</div>
-                <p className={styles.metricValue}>— <span className={styles.metricUnit}>%</span></p>
-                <div className={styles.metricSub}>No computed agreement statistic loaded</div>
-              </div>
+
+                <div className={styles.metric}>
+                  <div className={styles.metricLabel}>
+                    Current Year ({currentNdviYear || '—'})
+                  </div>
+                  <p className={styles.metricValue}>
+                    {hasAppliedStudyPeriod && currentAnnualNdvi
+                      ? currentAnnualNdvi.meanNdvi.toFixed(4)
+                      : '—'}
+                  </p>
+                  <div className={styles.metricSub}>
+                    Annual mean NDVI
+                  </div>
+                </div>
+
+                <p className={styles.smallNote}>
+                  Each annual mean uses that year's MVI-derived mangrove
+                  candidate extent. These values describe vegetation
+                  greenness, not confirmed mangrove health or degradation.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className={styles.metricHead}>Selected observation</p>
+
+                <div className={styles.metric}>
+                  <div className={styles.metricLabel}>
+                    {selectedLayer === 'mvi'
+                      ? 'MVI candidate extent'
+                      : 'Candidate change'}
+                  </div>
+                  <p className={styles.metricValue}>
+                    — <span className={styles.metricUnit}>ha</span>
+                  </p>
+                  <div className={styles.metricSub}>
+                    No computed area statistic loaded
+                  </div>
+                </div>
+
+                <div className={styles.metric}>
+                  <div className={styles.metricLabel}>
+                    Agreement with GMW
+                  </div>
+                  <p className={styles.metricValue}>
+                    — <span className={styles.metricUnit}>%</span>
+                  </p>
+                  <div className={styles.metricSub}>
+                    No computed agreement statistic loaded
+                  </div>
+                </div>
+              </>
+            )}
+
               <div className={styles.rule}/>
               <p className={styles.legendTitle}>Map interpretation</p>
               {selectedLayer==='mvi' && (
@@ -1212,24 +1320,89 @@ const handleUpdateMap = (start, end) => {
                   </div>}
                 </div>
               )}
-              <p className={styles.smallNote}>Four-color GMW comparison key (not yet loaded as a map layer):</p>
-              <div className={styles.legend}>
-                {[
-                  ['#337fd3','Overlap: MVI and GMW'],
-                  ['#ca4aa3','GMW only'],
-                  ['#eb8743','MVI only (GMW valid non-mangrove)'],
-                  ['#e7bf34','MVI candidate (GMW NoData)']
-                ].map(([color,label])=>(
-                  <div className={styles.legendRow} key={label}>
-                    <span className={styles.swatch} style={{background:color}}/>
-                    <span>{label}</span>
+
+              {selectedLayer === 'ndvi' ? (
+                <>
+                  <p className={styles.legendTitle}>
+                    Mangrove NDVI Legend
+                  </p>
+
+                  <p className={styles.smallNote}>
+                    NDVI indicates vegetation greenness within each year's
+                    MVI-derived mangrove candidate areas.
+                  </p>
+
+                  <div className={styles.legend}>
+                    {NDVI_CLASSES.map((item) => (
+                      <div className={styles.legendRow} key={item.name}>
+                        <span
+                          className={styles.swatch}
+                          style={{ background: item.color }}
+                        />
+                        <span>
+                          {item.name}
+                          <span
+                            style={{
+                              display: 'block',
+                              fontSize: '11px',
+                              color: '#6b7280'
+                            }}
+                          >
+                            NDVI {item.range}
+                          </span>
+                        </span>
+                      </div>
+                    ))}
+
+                    <div className={styles.legendRow}>
+                      <span
+                        className={styles.swatch}
+                        style={{ background: '#FFFF00' }}
+                      />
+                      <span>Persistent mangrove candidate outline (2019–2025)</span>
+                    </div>
                   </div>
-                ))}
-              </div>
-              <p className={styles.source}>
-                GMW is a comparison reference, not ground truth. Yellow does not imply GMW disagreement.
-                The separate NoData-aware comparison uses a 30 m common grid; it is not this map's current tile layer.
-              </p>
+
+                  <p className={styles.source}>
+                    NDVI: Sentinel-2 SR Harmonized.
+                    Mask: Same-year MVI-derived mangrove candidate extent.
+                    Transparent areas are outside the candidate mask or
+                    contain no NDVI data. Persistent outlines indicate
+                    locations consistently classified as candidates
+                    throughout 2019–2025, not confirmed mangrove health.
+                  </p>
+                </>
+              ) : selectedLayer === 'mvi' ? (
+                <>
+                  <p className={styles.smallNote}>
+                    Four-color GMW comparison key (not yet loaded as a map layer):
+                  </p>
+
+                  <div className={styles.legend}>
+                    {[
+                      ['#337fd3', 'Overlap: MVI and GMW'],
+                      ['#ca4aa3', 'GMW only'],
+                      ['#eb8743', 'MVI only (GMW valid non-mangrove)'],
+                      ['#e7bf34', 'MVI candidate (GMW NoData)']
+                    ].map(([color, label]) => (
+                      <div className={styles.legendRow} key={label}>
+                        <span
+                          className={styles.swatch}
+                          style={{ background: color }}
+                        />
+                        <span>{label}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className={styles.source}>
+                    GMW is a comparison reference, not ground truth.
+                    The separate NoData-aware comparison uses a 30 m
+                    common grid; it is not this map's current tile layer.
+                  </p>
+                </>
+              ) : null}
+
             </aside>
           </div>
         </div>
