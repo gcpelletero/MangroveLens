@@ -186,6 +186,99 @@ useEffect(() => {
   }
 }, [selectedLayer]);
 
+  // Load the selected-period outline and statistics AFTER the annual NDVI map.
+  // Both requests are optional enhancements and must not hold up the main map.
+  useEffect(() => {
+    if (
+      selectedLayer !== 'ndvi' ||
+      !hasAppliedStudyPeriod ||
+      !mapUrl ||
+      isUpdating
+    ) {
+      return;
+    }
+
+    const from = Number(String(appliedStartDate).slice(0, 4));
+    const to = Number(String(appliedEndDate).slice(0, 4));
+    if (
+      !Number.isInteger(from) ||
+      !Number.isInteger(to) ||
+      from < 2019 ||
+      to > 2025 ||
+      from > to
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+    const controllers = [];
+
+    setPersistentOverlayUrl('');
+    setPersistentNdviMeans([]);
+    setPersistentAreaHa(null);
+    setPersistentAnalysisError(null);
+    setPersistentAnalysisLoading(true);
+
+    const fetchPersistent = async (mode) => {
+      const controller = new AbortController();
+      controllers.push(controller);
+      const timeout = setTimeout(() => controller.abort(), 60000);
+      try {
+        const response = await fetch(
+          `/api/persistent-mvi-overlay?startYear=${from}&endYear=${to}&mode=${mode}`,
+          { cache: 'no-store', signal: controller.signal }
+        );
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || `Persistent ${mode} unavailable.`);
+        }
+        return result;
+      } finally {
+        clearTimeout(timeout);
+      }
+    };
+
+    // Tile outline and statistic queries run independently.
+    fetchPersistent('outline')
+      .then((result) => {
+        if (!cancelled) setPersistentOverlayUrl(result.mapUrl);
+      })
+      .catch((error) => {
+        if (!cancelled) console.error('Persistent outline error:', error);
+      });
+
+    fetchPersistent('stats')
+      .then((result) => {
+        if (cancelled) return;
+        setPersistentNdviMeans(result.ndviMeans || []);
+        setPersistentAreaHa(result.metadata?.candidateAreaHa ?? null);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error('Selected-period NDVI statistics error:', error);
+        setPersistentAnalysisError(
+          error.name === 'AbortError'
+            ? 'The analysis timed out. The annual NDVI map remains available.'
+            : (error.message || 'Selected-period NDVI statistics unavailable.')
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setPersistentAnalysisLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+      controllers.forEach((controller) => controller.abort());
+    };
+  }, [
+    selectedLayer,
+    mapUrl,
+    isUpdating,
+    hasAppliedStudyPeriod,
+    appliedStartDate,
+    appliedEndDate
+  ]);
+
   // Function to update map view when bounds/center/zoom changes
   useEffect(() => {
     if (mapInstance && bounds) {
@@ -285,52 +378,10 @@ const fetchMapData = async (
 
       setMapUrl(result.mapUrl);
 
-      // Both the outline and graph use the selected Start Year–End Year intersection.
-      setPersistentAnalysisLoading(true);
-      setPersistentOverlayUrl('');
-      setPersistentNdviMeans([]);
-      setPersistentAreaHa(null);
-      setPersistentAnalysisError(null);
-
-      try {
-        const overlayResponse = await fetch(
-          `/api/persistent-mvi-overlay?startYear=${encodeURIComponent(
-            selectedStartYear
-          )}&endYear=${encodeURIComponent(selectedYear)}`,
-          { cache: 'no-store' }
-        );
-
-        const overlayResult = await overlayResponse.json();
-
-        if (!overlayResponse.ok || !overlayResult.success) {
-          throw new Error(
-            overlayResult.error ||
-            'Earth Engine could not calculate the selected-period persistent candidate analysis.'
-          );
-        }
-
-        setPersistentOverlayUrl(overlayResult.mapUrl);
-        setPersistentNdviMeans(overlayResult.ndviMeans || []);
-        setPersistentAreaHa(overlayResult.metadata?.candidateAreaHa ?? null);
-      } catch (overlayError) {
-        console.error('Selected-period persistent candidate error:', overlayError);
-        setPersistentOverlayUrl('');
-        setPersistentNdviMeans([]);
-        setPersistentAreaHa(null);
-        setPersistentAnalysisError(
-          overlayError.message || 'Persistent candidate statistics could not be loaded.'
-        );
-      } finally {
-        setPersistentAnalysisLoading(false);
-      }
-
+      // The annual NDVI map must finish independently of the selected-period
+      // persistent mask, outline, and graph statistics.
       setIsLegendVisible(true);
-
-
-      setTimeSeriesMetadata(
-        result.metadata || null
-      );
-
+      setTimeSeriesMetadata(result.metadata || null);
       setCenter(PALAWAN_CENTER);
       setZoom(PALAWAN_ZOOM);
       setBounds(null);
