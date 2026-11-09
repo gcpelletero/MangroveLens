@@ -1185,7 +1185,6 @@ const handleUpdateMap = (start, end) => {
                 selectedMunicipality={selectedMunicipality}
                 municipalities={municipalities}
                 onMunicipalityChange={handleMunicipalityChange}
-                onLayerChange={handleLayerChange}
                 onDateChange={handleDateChange}
                 onUpdateMap={handleUpdateMap}
                 isUpdating={isUpdating}
