@@ -1244,7 +1244,7 @@ const handleUpdateMap = (start, end) => {
 
                 <div className={styles.metric}>
                   <div className={styles.metricLabel}>
-                    Historical Year ({historicalNdviYear || '—'})
+                    Start Year ({historicalNdviYear || '—'})
                   </div>
                   <p className={styles.metricValue}>
                     {hasAppliedStudyPeriod && historicalAnnualNdvi
@@ -1258,7 +1258,7 @@ const handleUpdateMap = (start, end) => {
 
                 <div className={styles.metric}>
                   <div className={styles.metricLabel}>
-                    Current Year ({currentNdviYear || '—'})
+                    End Year ({currentNdviYear || '—'})
                   </div>
                   <p className={styles.metricValue}>
                     {hasAppliedStudyPeriod && currentAnnualNdvi
