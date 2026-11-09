@@ -1,184 +1,102 @@
+
 const { ee, initEE } = require('../../lib/earthEngine');
 
-const ASSET_ROOT = 'projects/meta-origin-451614-s3/assets';
-const ANALYSIS_CRS = 'EPSG:32650';
-const ANALYSIS_SCALE = 20;
-const FIRST_YEAR = 2019;
-const LAST_YEAR = 2025;
+const ASSET_ROOT =
+  'projects/meta-origin-451614-s3/assets';
 
 const getMapAsync = (image) =>
   new Promise((resolve, reject) => {
     image.getMap(
-      { min: 0, max: 1, palette: ['#FFD700'] },
+      {
+        min: 0,
+        max: 1,
+        palette: ['#FFD700']
+      },
       (map, error) => {
-        if (error) return reject(new Error(String(error)));
-        if (!map?.urlFormat) {
-          return reject(new Error('Earth Engine did not return a map tile URL.'));
+        if (error) {
+          reject(new Error(String(error)));
+          return;
         }
-        resolve(map.urlFormat);
+
+        if (!map || !map.urlFormat) {
+          reject(
+            new Error('Earth Engine did not return a map tile URL.')
+          );
+          return;
+        }
+
+        resolve(map);
       }
     );
   });
 
-const getInfoAsync = (object) =>
-  new Promise((resolve, reject) => {
-    object.getInfo((result, error) => {
-      if (error) return reject(new Error(String(error)));
-      if (!result) return reject(new Error('Earth Engine did not return persistent NDVI statistics.'));
-      resolve(result);
-    });
-  });
-
-const analysisOptions = (geometry, reducer) => ({
-  reducer,
-  geometry,
-  crs: ANALYSIS_CRS,
-  scale: ANALYSIS_SCALE,
-  maxPixels: 1e10,
-  tileScale: 8
-});
-
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
-    return res.status(405).json({ success: false, error: 'Only GET requests are allowed.' });
-  }
 
-  const { startYear: startText, endYear: endText } = req.query;
-  const mode = req.query.mode || 'outline';
-
-  if (mode !== 'outline' && mode !== 'stats') {
-    return res.status(400).json({
+    return res.status(405).json({
       success: false,
-      error: 'Mode must be outline or stats.'
-    });
-  }
-  if (
-    typeof startText !== 'string' ||
-    typeof endText !== 'string' ||
-    !/^\d{4}$/.test(startText) ||
-    !/^\d{4}$/.test(endText)
-  ) {
-    return res.status(400).json({
-      success: false,
-      error: 'Start Year and End Year are required.'
-    });
-  }
-
-  const startYear = Number(startText);
-  const endYear = Number(endText);
-  if (startYear < FIRST_YEAR || endYear > LAST_YEAR || startYear > endYear) {
-    return res.status(400).json({
-      success: false,
-      error: 'Choose a period between 2019 and 2025, with Start Year not later than End Year.'
+      error: 'Only GET requests are allowed.'
     });
   }
 
   try {
     await initEE();
 
-    // Match the Palawan study boundary and 20 m grid used for the candidate change maps.
-    const palawan = ee.FeatureCollection('FAO/GAUL/2015/level2')
-      .filter(ee.Filter.eq('ADM0_NAME', 'Philippines'))
-      .filter(ee.Filter.eq('ADM2_NAME', 'Palawan'))
-      .geometry();
+    // Load the 2019 MVI candidate mask.
+    let persistent = ee.Image(
+      `${ASSET_ROOT}/mvi_candidate_2019`
+    )
+      .select(0)
+      .unmask(0)
+      .gt(0);
 
-    const loadCandidate = (year) =>
-      ee.Image(`${ASSET_ROOT}/mvi_candidate_${year}`)
+    // Keep locations detected in every year (2019–2025).
+    for (let year = 2020; year <= 2025; year++) {
+      const annualCandidate = ee.Image(
+        `${ASSET_ROOT}/mvi_candidate_${year}`
+      )
         .select(0)
         .unmask(0)
-        .gt(0)
-        .reproject({ crs: ANALYSIS_CRS, scale: ANALYSIS_SCALE })
-        .clip(palawan);
+        .gt(0);
 
-    let persistent = loadCandidate(startYear);
-    for (let year = startYear + 1; year <= endYear; year++) {
-      persistent = persistent.and(loadCandidate(year));
-    }
-    persistent = persistent.selfMask();
-
-    const baseMetadata = {
-      layer: 'Persistent MVI-derived mangrove candidate outline',
-      startYear,
-      endYear,
-      period: `${startYear}–${endYear}`,
-      area: 'Palawan',
-      analysisCrs: ANALYSIS_CRS,
-      analysisScaleMeters: ANALYSIS_SCALE,
-      interpretation:
-        'Intersection of annual MVI-derived candidate masks across every year in the selected period, not ground truth.'
-    };
-
-    if (mode === 'outline') {
-      // Fast tile-URL path; do not wait for statistics over all of Palawan.
-      const interior = persistent.focal_min({ radius: 1, units: 'pixels' });
-      const outline = persistent.and(interior.not()).selfMask();
-      const mapUrl = await getMapAsync(outline);
-
-      return res.status(200).json({
-        success: true,
-        mapUrl,
-        metadata: {
-          ...baseMetadata,
-          color: '#FFD700'
-        }
-      });
+      persistent = persistent.and(annualCandidate);
     }
 
-    // Statistics may take substantially longer than generating map tiles.
-    // They must be requested separately so they cannot block the NDVI map.
-    const ndviBands = [];
-    for (let year = startYear; year <= endYear; year++) {
-      ndviBands.push(
-        ee.Image(`${ASSET_ROOT}/ndvi_mangrove_candidate_${year}`)
-          .select('NDVI')
-          .updateMask(persistent)
-          .rename(`ndvi_${year}`)
-      );
-    }
-
-    const means = ee.Image.cat(ndviBands).reduceRegion(
-      analysisOptions(palawan, ee.Reducer.mean())
-    );
-
-    const areaSquareMeters = ee.Image.pixelArea()
-      .rename('area_m2')
-      .updateMask(persistent)
-      .reduceRegion(analysisOptions(palawan, ee.Reducer.sum()))
-      .get('area_m2');
-
-    const statistics = ee.Dictionary({
-      areaHa: ee.Number(ee.Algorithms.If(areaSquareMeters, areaSquareMeters, 0)).divide(10000),
-      means
+    // Create a boundary around persistent locations.
+    // This avoids covering the underlying NDVI colors.
+    const interior = persistent.focal_min({
+      radius: 1,
+      units: 'pixels'
     });
 
-    const result = await getInfoAsync(statistics);
+    const outline = persistent
+      .and(interior.not())
+      .selfMask();
 
-    const ndviMeans = [];
-    for (let year = startYear; year <= endYear; year++) {
-      const value = result.means?.[`ndvi_${year}`];
-      ndviMeans.push({
-        year,
-        meanNdvi: typeof value === 'number' && Number.isFinite(value) ? value : null
-      });
-    }
+    // Generate the outline tile URL.
+    const map = await getMapAsync(outline);
 
     return res.status(200).json({
       success: true,
-      ndviMeans,
+      mapUrl: map.urlFormat,
       metadata: {
-        ...baseMetadata,
-        candidateAreaHa: typeof result.areaHa === 'number' ? result.areaHa : null,
-        annualAssets: 'Precomputed MVI candidate and NDVI images',
+        layer: 'Persistent MVI candidate outline',
+        period: '2019–2025',
+        area: 'Palawan',
+        color: '#FFD700',
         interpretation:
-          'NDVI means are computed using the same candidate footprint persistent across every selected year. Values represent vegetation greenness, not verified mangrove degradation or recovery.'
+          'Locations classified as mangrove candidates in every year from 2019 to 2025. This does not independently confirm mangrove presence or ecological stability.'
       }
     });
   } catch (error) {
-    console.error('Selected-period persistent MVI analysis error:', error);
+    console.error('Persistent MVI overlay error:', error);
+
     return res.status(500).json({
       success: false,
-      error: error.message || 'Unable to calculate the selected-period persistent candidate layer.'
+      error:
+        error.message ||
+        'Unable to load the persistent MVI overlay.'
     });
   }
 }
