@@ -1406,7 +1406,12 @@ const handleUpdateMap = (start, end) => {
                         className={styles.swatch}
                         style={{ background: '#FFFF00' }}
                       />
-                      <span>Persistent mangrove candidate outline (2019–2025)</span>
+                      <span>
+                        Persistent mangrove candidate outline
+                        {appliedStartDate && appliedEndDate
+                          ? ` (${getYear(appliedStartDate)}–${getYear(appliedEndDate)})`
+                          : ' (selected period)'}
+                      </span>
                     </div>
                   </div>
 
@@ -1414,9 +1419,10 @@ const handleUpdateMap = (start, end) => {
                     NDVI: Sentinel-2 SR Harmonized.
                     Mask: Same-year MVI-derived mangrove candidate extent.
                     Transparent areas are outside the candidate mask or
-                    contain no NDVI data. Persistent outlines indicate
-                    locations consistently classified as candidates
-                    throughout 2019–2025, not confirmed mangrove health.
+                    contain no NDVI data. The yellow outline indicates
+                    locations classified as candidates in every year of the
+                    selected Start Year–End Year interval, not field-verified
+                    mangrove presence or ecological stability.
                   </p>
                 </>
               ) : selectedLayer === 'mvi' ? (
