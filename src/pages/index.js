@@ -1081,7 +1081,7 @@ const handleUpdateMap = (start, end) => {
   );
 
   const activeView = selectedLayer === 'ndvi' ? 'trends'
-    : selectedLayer === 'decline' ? 'trends'
+    : selectedLayer === 'decline' ? 'decline'
     : showReferenceOutline ? 'comparison' : 'extent';
   const hasLiveMap = Boolean(mapUrl);
   const selectView = (view) => {
@@ -1095,8 +1095,10 @@ const handleUpdateMap = (start, end) => {
         setMapUrl('');
         setTimeSeriesMetadata(null);
       }
-    } else if (view === 'trends' && selectedLayer !== 'ndvi' && selectedLayer !== 'decline') {
+    } else if (view === 'trends' && selectedLayer !== 'ndvi') {
       handleLayerChange('ndvi');
+    } else if (view === 'decline' && selectedLayer !== 'decline') {
+      handleLayerChange('decline');
     }
   };
 
@@ -1120,17 +1122,26 @@ const handleUpdateMap = (start, end) => {
             </svg>
           </button>
           <button title="Map Explorer" aria-label="Map Explorer" type="button"
-            className={activeView !== 'trends' ? styles.navActive : styles.navButton}
+            className={activeView === 'extent' || activeView === 'comparison' ? styles.navActive : styles.navButton}
             onClick={()=>selectView('extent')}>
             <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" aria-hidden="true">
               <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Zm6-3v15m6-12v15"/>
             </svg>
           </button>
-          <button title="Monitoring" aria-label="Monitoring" type="button"
+          <button title="NDVI Trends" aria-label="NDVI Trends" type="button"
+            aria-pressed={activeView === 'trends'}
             className={activeView === 'trends' ? styles.navActive : styles.navButton}
             onClick={()=>selectView('trends')}>
             <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" aria-hidden="true">
               <path d="M4 19V6m0 13h16M7 15l4-4 3 2 5-7"/>
+            </svg>
+          </button>
+          <button title="Candidate Change" aria-label="Candidate Change" type="button"
+            aria-pressed={activeView === 'decline'}
+            className={activeView === 'decline' ? styles.navActive : styles.navButton}
+            onClick={()=>selectView('decline')}>
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" aria-hidden="true">
+              <path d="M4 5v14h16M7 8l5 5 3-3 5 5m-4 0h4v-4" />
             </svg>
           </button>
           <div className={styles.navBottom}>
