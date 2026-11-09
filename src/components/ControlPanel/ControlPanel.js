@@ -4,7 +4,7 @@ const YEARS = ['2019','2020','2021','2022','2023','2024','2025'];
 const yearOf = (date) => date ? String(date).slice(0,4) : '';
 
 export default function ControlPanel({
-  startDate, endDate, onDateChange, onUpdateMap, onLayerChange,
+  startDate, endDate, onDateChange, onUpdateMap,
   isUpdating=false, error=null, selectedLayer, selectedMunicipality,
   onMunicipalityChange, municipalities=[],
 
@@ -85,14 +85,12 @@ export default function ControlPanel({
               {YEARS.map((y)=><option key={y} value={y}>{y}</option>)}
             </select>
           </div>
-          <div className={styles.field}>
-            <label htmlFor="ml-analysis-layer">Analysis layer</label>
-            <select id="ml-analysis-layer" disabled={isUpdating} value={selectedLayer}
-              onChange={(event)=>onLayerChange(event.target.value)}>
-              <option value="ndvi">NDVI vegetation condition</option>
-              <option value="decline">Candidate change</option>
-            </select>
-          </div>
+          {selectedLayer === 'decline' && (
+            <p className={styles.help}>
+              Candidate change compares the selected years' MVI-derived mangrove candidate extent.
+              Changes are provisional, not confirmed mangrove loss or restoration.
+            </p>
+          )}
           {invalidRange && <p className={styles.error}>Start Year cannot be later than End Year.</p>}
         </>
       )}
