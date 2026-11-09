@@ -45,6 +45,14 @@ export default async function handler(req, res) {
   }
 
   const { startYear: startText, endYear: endText } = req.query;
+  const mode = req.query.mode || 'outline';
+
+  if (mode !== 'outline' && mode !== 'stats') {
+    return res.status(400).json({
+      success: false,
+      error: 'Mode must be outline or stats.'
+    });
+  }
   if (
     typeof startText !== 'string' ||
     typeof endText !== 'string' ||
@@ -89,11 +97,36 @@ export default async function handler(req, res) {
     }
     persistent = persistent.selfMask();
 
-    // A yellow outline preserves the end-year NDVI colors underneath.
-    const interior = persistent.focal_min({ radius: 1, units: 'pixels' });
-    const outline = persistent.and(interior.not()).selfMask();
+    const baseMetadata = {
+      layer: 'Persistent MVI-derived mangrove candidate outline',
+      startYear,
+      endYear,
+      period: `${startYear}–${endYear}`,
+      area: 'Palawan',
+      analysisCrs: ANALYSIS_CRS,
+      analysisScaleMeters: ANALYSIS_SCALE,
+      interpretation:
+        'Intersection of annual MVI-derived candidate masks across every year in the selected period, not ground truth.'
+    };
 
-    // All chart years share this exact selected-period candidate footprint.
+    if (mode === 'outline') {
+      // Fast tile-URL path; do not wait for statistics over all of Palawan.
+      const interior = persistent.focal_min({ radius: 1, units: 'pixels' });
+      const outline = persistent.and(interior.not()).selfMask();
+      const mapUrl = await getMapAsync(outline);
+
+      return res.status(200).json({
+        success: true,
+        mapUrl,
+        metadata: {
+          ...baseMetadata,
+          color: '#FFD700'
+        }
+      });
+    }
+
+    // Statistics may take substantially longer than generating map tiles.
+    // They must be requested separately so they cannot block the NDVI map.
     const ndviBands = [];
     for (let year = startYear; year <= endYear; year++) {
       ndviBands.push(
@@ -119,10 +152,7 @@ export default async function handler(req, res) {
       means
     });
 
-    const [mapUrl, result] = await Promise.all([
-      getMapAsync(outline),
-      getInfoAsync(statistics)
-    ]);
+    const result = await getInfoAsync(statistics);
 
     const ndviMeans = [];
     for (let year = startYear; year <= endYear; year++) {
@@ -135,20 +165,13 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      mapUrl,
       ndviMeans,
       metadata: {
-        layer: 'Persistent MVI-derived mangrove candidate outline',
-        startYear,
-        endYear,
-        period: `${startYear}–${endYear}`,
+        ...baseMetadata,
         candidateAreaHa: typeof result.areaHa === 'number' ? result.areaHa : null,
-        color: '#FFD700',
-        analysisCrs: ANALYSIS_CRS,
-        analysisScaleMeters: ANALYSIS_SCALE,
         annualAssets: 'Precomputed MVI candidate and NDVI images',
         interpretation:
-          'An intersection of all annual MVI candidate masks within the selected period. The NDVI statistics use this same fixed selected-period footprint. Neither the outline nor the NDVI means independently confirm mangrove condition or degradation.'
+          'NDVI means are computed using the same candidate footprint persistent across every selected year. Values represent vegetation greenness, not verified mangrove degradation or recovery.'
       }
     });
   } catch (error) {
