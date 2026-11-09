@@ -70,7 +70,7 @@ export default function ControlPanel({
         <>
           <div className={styles.yearHead}><strong>Observation period</strong></div>
           <div className={styles.field}>
-            <label htmlFor="ml-start-year">Historical year</label>
+            <label htmlFor="ml-start-year">Start Year</label>
             <select id="ml-start-year" disabled={isUpdating} value={historicalYear}
               onChange={(event)=>setStartYear(event.target.value)}>
               <option value="">Select year</option>
@@ -78,7 +78,7 @@ export default function ControlPanel({
             </select>
           </div>
           <div className={styles.field}>
-            <label htmlFor="ml-end-year">Current year</label>
+            <label htmlFor="ml-end-year">End Year</label>
             <select id="ml-end-year" disabled={isUpdating} value={selectedYear}
               onChange={(event)=>setEndYear(event.target.value)}>
               <option value="">Select year</option>
@@ -93,7 +93,7 @@ export default function ControlPanel({
               <option value="decline">Candidate change</option>
             </select>
           </div>
-          {invalidRange && <p className={styles.error}>Historical year cannot be later than current year.</p>}
+          {invalidRange && <p className={styles.error}>Start Year cannot be later than End Year.</p>}
         </>
       )}
       <div className={styles.rule}/>
