@@ -63,7 +63,7 @@ export default function Home() {
 
   // Date range for analysis
   const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('2024-12-31');
+  const [endDate, setEndDate] = useState('');
 
   const [appliedStartDate, setAppliedStartDate] = useState('');
   const [appliedEndDate, setAppliedEndDate] = useState('');
@@ -503,12 +503,11 @@ const handleLayerChange = (layerType) => {
    * MVI represents one annual mangrove extent,
    * so it only needs one selected year.
    *
-   * Only the prepared 2024 asset is currently
-   * available.
+   * Require the user to choose the observation year.
    */
   if (layerType === 'mvi') {
     setStartDate('');
-    setEndDate('2024');
+    setEndDate('');
   }
 
   if (layerType) {
