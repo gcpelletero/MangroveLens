@@ -40,10 +40,6 @@ export default function Home() {
 
   const [persistentOverlayUrl, setPersistentOverlayUrl] = useState('');
   const [showPersistentOverlay, setShowPersistentOverlay] = useState(true);
-  const [persistentNdviMeans, setPersistentNdviMeans] = useState([]);
-  const [persistentAreaHa, setPersistentAreaHa] = useState(null);
-  const [persistentAnalysisError, setPersistentAnalysisError] = useState(null);
-  const [persistentAnalysisLoading, setPersistentAnalysisLoading] = useState(false);
 
   /*
   * Optional mangrove-reference overlay.
@@ -186,99 +182,6 @@ useEffect(() => {
   }
 }, [selectedLayer]);
 
-  // Load the selected-period outline and statistics AFTER the annual NDVI map.
-  // Both requests are optional enhancements and must not hold up the main map.
-  useEffect(() => {
-    if (
-      selectedLayer !== 'ndvi' ||
-      !hasAppliedStudyPeriod ||
-      !mapUrl ||
-      isUpdating
-    ) {
-      return;
-    }
-
-    const from = Number(String(appliedStartDate).slice(0, 4));
-    const to = Number(String(appliedEndDate).slice(0, 4));
-    if (
-      !Number.isInteger(from) ||
-      !Number.isInteger(to) ||
-      from < 2019 ||
-      to > 2025 ||
-      from > to
-    ) {
-      return;
-    }
-
-    let cancelled = false;
-    const controllers = [];
-
-    setPersistentOverlayUrl('');
-    setPersistentNdviMeans([]);
-    setPersistentAreaHa(null);
-    setPersistentAnalysisError(null);
-    setPersistentAnalysisLoading(true);
-
-    const fetchPersistent = async (mode) => {
-      const controller = new AbortController();
-      controllers.push(controller);
-      const timeout = setTimeout(() => controller.abort(), 60000);
-      try {
-        const response = await fetch(
-          `/api/persistent-mvi-overlay?startYear=${from}&endYear=${to}&mode=${mode}`,
-          { cache: 'no-store', signal: controller.signal }
-        );
-        const result = await response.json();
-        if (!response.ok || !result.success) {
-          throw new Error(result.error || `Persistent ${mode} unavailable.`);
-        }
-        return result;
-      } finally {
-        clearTimeout(timeout);
-      }
-    };
-
-    // Tile outline and statistic queries run independently.
-    fetchPersistent('outline')
-      .then((result) => {
-        if (!cancelled) setPersistentOverlayUrl(result.mapUrl);
-      })
-      .catch((error) => {
-        if (!cancelled) console.error('Persistent outline error:', error);
-      });
-
-    fetchPersistent('stats')
-      .then((result) => {
-        if (cancelled) return;
-        setPersistentNdviMeans(result.ndviMeans || []);
-        setPersistentAreaHa(result.metadata?.candidateAreaHa ?? null);
-      })
-      .catch((error) => {
-        if (cancelled) return;
-        console.error('Selected-period NDVI statistics error:', error);
-        setPersistentAnalysisError(
-          error.name === 'AbortError'
-            ? 'The analysis timed out. The annual NDVI map remains available.'
-            : (error.message || 'Selected-period NDVI statistics unavailable.')
-        );
-      })
-      .finally(() => {
-        if (!cancelled) setPersistentAnalysisLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-      controllers.forEach((controller) => controller.abort());
-    };
-  }, [
-    selectedLayer,
-    mapUrl,
-    isUpdating,
-    hasAppliedStudyPeriod,
-    appliedStartDate,
-    appliedEndDate
-  ]);
-
   // Function to update map view when bounds/center/zoom changes
   useEffect(() => {
     if (mapInstance && bounds) {
@@ -336,10 +239,11 @@ const fetchMapData = async (
 
     if (layerType === 'ndvi') {
       const selectedYear = getYear(end);
-      const selectedStartYear = getYear(start);
 
-      if (!selectedYear || !selectedStartYear) {
-        throw new Error('Please select a Start Year and End Year.');
+      if (!selectedYear) {
+        throw new Error(
+          'Please select a current year.'
+        );
       }
 
       if (
@@ -378,10 +282,33 @@ const fetchMapData = async (
 
       setMapUrl(result.mapUrl);
 
-      // The annual NDVI map must finish independently of the selected-period
-      // persistent mask, outline, and graph statistics.
+      // Load the persistent mangrove candidate outline.
+      try {
+        const overlayResponse = await fetch(
+          '/api/persistent-mvi-overlay',
+          { cache: 'no-store' }
+        );
+
+        const overlayResult = await overlayResponse.json();
+
+        if (overlayResponse.ok && overlayResult.success) {
+          setPersistentOverlayUrl(overlayResult.mapUrl);
+        } else {
+          setPersistentOverlayUrl('');
+          console.error('Persistent overlay could not be loaded.');
+        }
+      } catch (overlayError) {
+        console.error('Persistent overlay error:', overlayError);
+        setPersistentOverlayUrl('');
+      }
+
       setIsLegendVisible(true);
-      setTimeSeriesMetadata(result.metadata || null);
+
+
+      setTimeSeriesMetadata(
+        result.metadata || null
+      );
+
       setCenter(PALAWAN_CENTER);
       setZoom(PALAWAN_ZOOM);
       setBounds(null);
@@ -558,11 +485,6 @@ const handleLayerChange = (layerType) => {
   setMapUrl('');
   setCurrentTimeSeriesUrl('');
   setError(null);
-  setPersistentOverlayUrl('');
-  setPersistentNdviMeans([]);
-  setPersistentAreaHa(null);
-  setPersistentAnalysisError(null);
-  setPersistentAnalysisLoading(false);
 
   setCenter(DEFAULT_CENTER);
   setZoom(DEFAULT_ZOOM);
@@ -619,11 +541,6 @@ const handleLayerChange = (layerType) => {
   const handleDateChange = ({ startDate: newStartDate, endDate: newEndDate }) => {
     setMapUrl('');
     setTimeSeriesMetadata(null);
-    setPersistentOverlayUrl('');
-    setPersistentNdviMeans([]);
-    setPersistentAreaHa(null);
-    setPersistentAnalysisError(null);
-    setPersistentAnalysisLoading(false);
     setStartDate(newStartDate);
     setEndDate(newEndDate);
 
@@ -833,7 +750,7 @@ const handleUpdateMap = (start, end) => {
         )}
 
 
-      {/* Persistent MVI candidate outline for the applied observation period */}
+      {/* Persistent mangrove candidate outline (2019–2025) */}
       {selectedLayer === 'ndvi' &&
         showPersistentOverlay &&
         persistentOverlayUrl && (
@@ -1129,10 +1046,6 @@ const handleUpdateMap = (start, end) => {
           <AnnualNdviGraph
             startYear={appliedStartYear}
             endYear={appliedEndYear}
-            data={persistentNdviMeans}
-            areaHa={persistentAreaHa}
-            isLoading={persistentAnalysisLoading}
-            error={persistentAnalysisError}
           />
         )}
 
@@ -1368,10 +1281,8 @@ const handleUpdateMap = (start, end) => {
 
                 <p className={styles.smallNote}>
                   Each annual mean uses that year's MVI-derived mangrove
-                  candidate extent. The floating graph instead uses the
-                  same persistent candidate footprint across the selected
-                  period. These values describe vegetation greenness,
-                  not confirmed mangrove health or degradation.
+                  candidate extent. These values describe vegetation
+                  greenness, not confirmed mangrove health or degradation.
                 </p>
               </>
             ) : (
@@ -1457,12 +1368,7 @@ const handleUpdateMap = (start, end) => {
                         className={styles.swatch}
                         style={{ background: '#FFFF00' }}
                       />
-                      <span>
-                        Persistent mangrove candidate outline
-                        {appliedStartDate && appliedEndDate
-                          ? ` (${getYear(appliedStartDate)}–${getYear(appliedEndDate)})`
-                          : ' (selected period)'}
-                      </span>
+                      <span>Persistent mangrove candidate outline (2019–2025)</span>
                     </div>
                   </div>
 
@@ -1470,10 +1376,9 @@ const handleUpdateMap = (start, end) => {
                     NDVI: Sentinel-2 SR Harmonized.
                     Mask: Same-year MVI-derived mangrove candidate extent.
                     Transparent areas are outside the candidate mask or
-                    contain no NDVI data. The yellow outline indicates
-                    locations classified as candidates in every year of the
-                    selected Start Year–End Year interval, not field-verified
-                    mangrove presence or ecological stability.
+                    contain no NDVI data. Persistent outlines indicate
+                    locations consistently classified as candidates
+                    throughout 2019–2025, not confirmed mangrove health.
                   </p>
                 </>
               ) : selectedLayer === 'mvi' ? (
