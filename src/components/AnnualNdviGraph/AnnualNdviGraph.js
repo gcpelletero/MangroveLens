@@ -1,13 +1,26 @@
 
-import { PERSISTENT_NDVI_MEANS } from '../../lib/persistentNdviMeans';
 
-const AnnualNdviGraph = ({ startYear, endYear }) => {
-const data = PERSISTENT_NDVI_MEANS.filter(    (item) =>
-      item.year >= Number(startYear) &&
-      item.year <= Number(endYear)
-  );
+const AnnualNdviGraph = ({
+  startYear,
+  endYear,
+  ndviMeans = [],
+  persistentAreaHa = null
+}) => {
 
+  // Use dynamic NDVI statistics returned by Google Earth Engine.
+  const data = ndviMeans
+    .filter(
+      (item) =>
+        item.year >= Number(startYear) &&
+        item.year <= Number(endYear) &&
+        typeof item.meanNdvi === 'number' &&
+        Number.isFinite(item.meanNdvi)
+    )
+    .sort((a, b) => a.year - b.year);
+
+  // Do not display the graph until valid GEE data is available.
   if (data.length === 0) return null;
+
 
   const left = 48;
   const right = 390;
@@ -70,7 +83,7 @@ const yTicks = [0.84, 0.86, 0.88, 0.90, 0.92];
           color: '#6b7280'
         }}
       >
-        Palawan • Persistent candidate areas (2019–2025) • {startYear}–{endYear}
+        Palawan • Persistent candidate areas ({startYear}–{endYear})
       </p>
 
       <svg
@@ -145,12 +158,13 @@ const yTicks = [0.84, 0.86, 0.88, 0.90, 0.92];
           lineHeight: '1.5'
         }}
       >
-        Mean NDVI within the same 22,096.83 hectares of
-        consistently detected mangrove candidate areas
-        from 2019 to 2025. Changes indicate variations
-        in average vegetation greenness, not confirmed
-        mangrove degradation or recovery. Newly detected
-        and disappearing candidate areas are excluded.
+      {persistentAreaHa !== null
+        ? `Mean NDVI within ${persistentAreaHa.toLocaleString('en-US', {
+            maximumFractionDigits: 2
+          })} hectares of MVI-derived candidate areas persistent from ${startYear} to ${endYear}.`
+        : `Mean NDVI within MVI-derived candidate areas persistent from ${startYear} to ${endYear}.`}
+      {' '}These values describe vegetation greenness, not confirmed mangrove degradation or recovery.
+
       </p>
     </div>
   );

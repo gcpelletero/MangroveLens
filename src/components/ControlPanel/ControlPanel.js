@@ -129,7 +129,9 @@ export default function ControlPanel({
                 onShowPersistentOverlayChange?.(event.target.checked)
               }
             />
-            <span>Show Persistent Areas (2019–2025)</span>
+            <span>
+              Show Persistent Areas ({historicalYear}–{selectedYear})
+            </span>
           </label>
         </div>
       )}

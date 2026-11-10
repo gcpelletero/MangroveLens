@@ -40,19 +40,42 @@ export default async function handler(req, res) {
     });
   }
 
-  try {
-    await initEE();
 
-    // Load the 2019 MVI candidate mask.
+    // Get the observation period selected by the user.
+    // Default to 2019–2025 for existing requests.
+    const startYear = Number(req.query.startYear ?? 2019);
+    const endYear = Number(req.query.endYear ?? 2025);
+
+    // Validate the selected years.
+    if (
+      !Number.isInteger(startYear) ||
+      !Number.isInteger(endYear) ||
+      startYear < 2019 ||
+      endYear > 2025 ||
+      startYear > endYear
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please select a valid period from 2019 to 2025.'
+      });
+    }
+
+    try {
+      await initEE();
+
+
+
+    // Load the candidate mask for the selected Start Year.
     let persistent = ee.Image(
-      `${ASSET_ROOT}/mvi_candidate_2019`
+      `${ASSET_ROOT}/mvi_candidate_${startYear}`
     )
       .select(0)
       .unmask(0)
       .gt(0);
 
-    // Keep locations detected in every year (2019–2025).
-    for (let year = 2020; year <= 2025; year++) {
+    // Keep locations classified as candidates
+    // in EVERY year of the selected period.
+    for (let year = startYear + 1; year <= endYear; year++) {
       const annualCandidate = ee.Image(
         `${ASSET_ROOT}/mvi_candidate_${year}`
       )
@@ -62,6 +85,7 @@ export default async function handler(req, res) {
 
       persistent = persistent.and(annualCandidate);
     }
+
 
     // Create a boundary around persistent locations.
     // This avoids covering the underlying NDVI colors.
@@ -80,13 +104,16 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       mapUrl: map.urlFormat,
+
       metadata: {
         layer: 'Persistent MVI candidate outline',
-        period: '2019–2025',
+        period: `${startYear}–${endYear}`,
+        startYear,
+        endYear,
         area: 'Palawan',
         color: '#FFD700',
         interpretation:
-          'Locations classified as mangrove candidates in every year from 2019 to 2025. This does not independently confirm mangrove presence or ecological stability.'
+          `Locations classified as mangrove candidates in every year from ${startYear} to ${endYear}. This does not independently confirm mangrove presence or ecological stability.`
       }
     });
   } catch (error) {

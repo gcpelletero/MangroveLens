@@ -38,7 +38,12 @@ const GeoTiffOverlay = dynamic(
 export default function Home() {
   const [mapUrl, setMapUrl] = useState('');
 
+  
   const [persistentOverlayUrl, setPersistentOverlayUrl] = useState('');
+
+  // Store dynamic persistent NDVI statistics from GEE.
+  const [persistentNdviStats, setPersistentNdviStats] = useState(null);
+
   const [showPersistentOverlay, setShowPersistentOverlay] = useState(true);
 
   /*
@@ -109,6 +114,64 @@ export default function Home() {
 
   const [showModal, setShowModal] = useState(false);
   const [showProjectInfo, setShowProjectInfo] = useState(false);
+
+
+  // Load persistent NDVI statistics separately from the map.
+  useEffect(() => {
+    if (
+      selectedLayer !== 'ndvi' ||
+      !hasAppliedStudyPeriod ||
+      !mapUrl ||
+      isUpdating
+    ) {
+      setPersistentNdviStats(null);
+      return;
+    }
+
+    const startYear = Number(appliedStartDate.slice(0, 4));
+    const endYear = Number(appliedEndDate.slice(0, 4));
+
+    const controller = new AbortController();
+
+    setPersistentNdviStats(null);
+
+    const loadStats = async () => {
+      try {
+        const response = await fetch(
+          `/api/persistent-ndvi-stats?startYear=${startYear}&endYear=${endYear}`,
+          { signal: controller.signal }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(
+            result.error || 'Unable to load persistent NDVI statistics.'
+          );
+        }
+
+        if (!controller.signal.aborted) {
+          setPersistentNdviStats(result);
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.error('Persistent NDVI statistics error:', error);
+        }
+      }
+    };
+
+    loadStats();
+
+    return () => controller.abort();
+  }, [
+    selectedLayer,
+    hasAppliedStudyPeriod,
+    appliedStartDate,
+    appliedEndDate,
+    mapUrl,
+    isUpdating
+  ]);
+
 
 
 useEffect(() => {
@@ -285,9 +348,10 @@ const fetchMapData = async (
       // Load the persistent mangrove candidate outline.
       try {
         const overlayResponse = await fetch(
-          '/api/persistent-mvi-overlay',
+          `/api/persistent-mvi-overlay?startYear=${encodeURIComponent(getYear(start))}&endYear=${encodeURIComponent(selectedYear)}`,
           { cache: 'no-store' }
         );
+
 
         const overlayResult = await overlayResponse.json();
 
@@ -1046,6 +1110,8 @@ const handleUpdateMap = (start, end) => {
           <AnnualNdviGraph
             startYear={appliedStartYear}
             endYear={appliedEndYear}
+            ndviMeans={persistentNdviStats?.ndviMeans ?? []}
+            persistentAreaHa={persistentNdviStats?.persistentAreaHa ?? null}
           />
         )}
 
